@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Calmkeep – Continuity Layer for Claude</title>
+
+<style>
+:root {
+  --bg:#0b1020;
+  --card:#11172e;
+  --muted:#a7b8d0;
+  --text:#eaf2ff;
+  --electric-500:#1b97ff;
+  --electric-700:#0b72c4;
+  --seafoam:#89f3d1;
+  --shadow:0 12px 34px rgba(0,0,0,.38);
+  --radius-lg:26px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'Segoe UI',Roboto,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1000px 500px at 2% 1%, rgba(137,243,209,.12), transparent 60%),
+    radial-gradient(950px 480px at 98% 99%, rgba(36,164,255,.12), transparent 65%),
+    linear-gradient(#0b1020,#0b1020);
+}
+
+header{
+  text-align:center;
+  padding:100px 20px 60px;
+}
+
+h1{
+  font-size:48px;
+  background:linear-gradient(90deg,#24a4ff,#89f3d1);
+  -webkit-background-clip:text;
+  color:transparent;
+  margin-bottom:18px;
+}
+
+.subtitle{
+  font-size:18px;
+  color:var(--muted);
+  max-width:780px;
+  margin:0 auto 30px;
+  line-height:1.7;
+}
+
+.btn{
+  cursor:pointer;
+  padding:14px 28px;
+  border-radius:30px;
+  border:none;
+  font-weight:600;
+  font-size:16px;
+  color:#fff;
+  background:linear-gradient(180deg,var(--electric-500),var(--electric-700));
+  box-shadow:0 0 18px rgba(36,164,255,.5),0 8px 30px rgba(0,0,0,.4);
+  margin:10px;
+}
+
+section{
+  max-width:1100px;
+  margin:80px auto;
+  padding:0 20px;
+}
+
+.card{
+  background:linear-gradient(
+    180deg,
+    rgba(36,164,255,.07),
+    rgba(137,243,209,.05) 65%,
+    rgba(0,0,0,.2)
+  ), var(--card);
+  border-radius:var(--radius-lg);
+  padding:40px;
+  box-shadow:var(--shadow);
+  margin-bottom:40px;
+}
+
+h2{
+  font-size:28px;
+  margin-bottom:18px;
+  color:var(--seafoam);
+}
+
+p{
+  color:var(--muted);
+  line-height:1.8;
+  font-size:16px;
+}
+
+ul{
+  margin-top:16px;
+  padding-left:20px;
+  color:var(--muted);
+  line-height:1.8;
+}
+
+pre{
+  background:#0a0f22;
+  padding:20px;
+  border-radius:14px;
+  color:#cce4ff;
+  font-size:14px;
+  overflow:auto;
+  margin-top:20px;
+}
+
+.pricing{
+  text-align:center;
+}
+
+.price{
+  font-size:42px;
+  margin:20px 0;
+}
+
+footer{
+  text-align:center;
+  padding:60px 20px;
+  font-size:13px;
+  color:var(--muted);
+  opacity:.8;
+}
+
+.bottom-glow{
+  height:250px;
+  background: radial-gradient(70% 100% at 50% 100%, rgba(137,243,209,0.25), transparent 80%);
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Calmkeep</h1>
+  <div class="subtitle">
+    Sustained analytical intelligence that builds across conversations — not just within them.<br><br>
+    A continuity layer for Claude that structures extended reasoning sessions using your own Claude API key.
+  </div>
+
+  <button class="btn">Start 14-Day Free Trial</button>
+  <button class="btn" style="background:linear-gradient(180deg,#89f3d1,#5ad4b3);color:#0b1020;">
+    View Documentation
+  </button>
+</header>
+
+<section>
+
+<div class="card">
+  <h2>Why Calmkeep Exists</h2>
+  <p>
+    Most AI systems answer questions well — one at a time.
+    But complex professional work rarely happens in isolation.
+  </p>
+  <p style="margin-top:16px;">
+    Research, legal analysis, architecture design, and strategy development unfold across
+    extended conversations where earlier frameworks shape later reasoning.
+  </p>
+  <p style="margin-top:16px;">
+    Calmkeep introduces structured continuity so analytical momentum compounds over time
+    instead of resetting every turn.
+  </p>
+</div>
+
+<div class="card">
+  <h2>The Core Difference</h2>
+
+  <p>Standard LLM usage is episodic:</p>
+  <ul>
+    <li>Each turn is processed independently</li>
+    <li>Context must be repeatedly re-supplied</li>
+    <li>Continuity is simulated through token re-injection</li>
+  </ul>
+
+  <p style="margin-top:24px;">
+    Calmkeep introduces structured continuity:
+  </p>
+
+  <ul>
+    <li>Cumulative framework building across sessions</li>
+    <li>Thematic integration across distant topics</li>
+    <li>Definitional stability and reduced conceptual drift</li>
+    <li>Cross-domain framework transfer</li>
+    <li>Compound insight generation across long arcs</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>Analytical Capabilities</h2>
+
+  <ul>
+    <li>Maintains analytical structures across multi-step workflows</li>
+    <li>Tracks how Issue A affects Issue B affects Option C</li>
+    <li>Supports multi-jurisdictional and comparative analysis</li>
+    <li>Preserves limiting principles during complex reasoning</li>
+    <li>Enables higher-order synthesis over extended sessions</li>
+  </ul>
+
+  <p style="margin-top:20px;">
+    The 50th response is informed by responses 1–49 — not just aware of them.
+  </p>
+</div>
+
+<div class="card">
+  <h2>Architecture</h2>
+
+  <p>
+    Your Application → Calmkeep Runtime → Claude API (BYO Key) → Structured Response
+  </p>
+
+  <p style="margin-top:16px;">
+    Calmkeep does not modify model weights, alter architecture, introduce training data,
+    or create hidden internal memory.
+  </p>
+
+  <ul>
+    <li>Bring your own Claude API key</li>
+    <li>Claude billing remains directly with Anthropic</li>
+    <li>No token resale or proxy billing</li>
+    <li>No safeguard bypassing</li>
+    <li>External orchestration only</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>What You Receive</h2>
+
+  <ul>
+    <li>Calmkeep SaaS runtime endpoint</li>
+    <li>Python SDK</li>
+    <li>Continuity-layer orchestration</li>
+    <li>Input/output guardrails enforcement</li>
+    <li>Usage & latency instrumentation</li>
+    <li>Metrics dashboard access</li>
+  </ul>
+
+  <p style="margin-top:20px;">
+    Claude API usage is billed separately through your own Anthropic account.
+  </p>
+
+<pre>
+from calmkeep import CalmkeepClient
+
+client = CalmkeepClient(
+    calmkeep_key="YOUR_CALMKEEP_SUBSCRIPTION_KEY",
+    claude_key="YOUR_CLAUDE_API_KEY"
+)
+
+response = client.complete(
+    prompt="Build a multi-step analysis..."
+)
+</pre>
+
+</div>
+
+<div class="card">
+  <h2>Designed For</h2>
+
+  <ul>
+    <li>Legal analysis & complex memorandum drafting</li>
+    <li>Strategic consulting & layered recommendations</li>
+    <li>Research synthesis across extended projects</li>
+    <li>Technical architecture documentation</li>
+    <li>Multi-session co-development workflows</li>
+  </ul>
+</div>
+
+</section>
+
+<section class="pricing">
+
+<h2 style="margin-bottom:30px;">Professional Plan</h2>
+
+<div class="card" style="max-width:520px;margin:0 auto;">
+  <div class="price">$49 / month</div>
+
+  <ul>
+    <li>Continuity Layer Access</li>
+    <li>Python SDK</li>
+    <li>Metrics Dashboard</li>
+    <li>Guardrails Enforcement</li>
+    <li>Bring Your Own Claude API Key</li>
+  </ul>
+
+  <p style="margin-top:20px;font-size:14px;color:var(--muted);">
+    Claude usage billed separately by Anthropic.
+  </p>
+
+  <button class="btn" style="margin-top:30px;">Start Free Trial</button>
+</div>
+
+</section>
+
+<footer>
+© 2026 Calmkeep Systems · External Continuity Layer · Structured Interaction Architecture
+</footer>
+
+<div class="bottom-glow"></div>
+
+</body>
+</html>
