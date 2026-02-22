@@ -102,7 +102,7 @@ pre{
   text-align:center;
 }
 .price{
-  font-size:48px;
+  font-size:42px;
   margin:20px 0;
   font-weight:700;
 }
@@ -137,12 +137,9 @@ footer{
 
 <!-- MOVED PRICING SECTION UP -->
 <section class="pricing">
-
 <h2 style="margin-bottom:30px;">Professional Plan</h2>
-
 <div class="card" style="max-width:520px;margin:0 auto;">
   <div class="price">$29 / month</div>
-
   <ul>
     <li>Continuity Layer Access</li>
     <li>Python SDK</li>
@@ -150,37 +147,94 @@ footer{
     <li>Guardrails Enforcement</li>
     <li>Bring Your Own Claude API Key</li>
   </ul>
-
   <p style="margin-top:20px;font-size:14px;color:var(--muted);">
     Claude usage billed separately by Anthropic.
   </p>
-
   <button class="btn" style="margin-top:30px;">Start Free Trial</button>
 </div>
-
 </section>
+
+<!-- ORIGINAL CONTENT FULLY PRESERVED BELOW -->
 
 <section>
 
 <div class="card">
   <h2>Why Calmkeep Exists</h2>
-  <p>
-    Most LLM usage is turn-based. Each response is strong on its own, but complex professional work rarely happens in isolation.
-  </p>
-  <p style="margin-top:16px;">
-    Backend systems evolve across dozens of prompts. Legal arguments compound across pages.
-    Strategic decisions build on prior constraints.
-  </p>
-  <p style="margin-top:16px;">
-    Without structural continuity, models subtly reintroduce conflicting patterns, shift definitions,
-    or drift from earlier architectural decisions.
-  </p>
-  <p style="margin-top:16px;">
-    Calmkeep reduces that drift. It preserves frameworks so reasoning compounds instead of resetting.
-  </p>
+  <p>Most LLM usage is turn-based. Each response is strong on its own, but complex professional work rarely happens in isolation.</p>
+  <p style="margin-top:16px;">Backend systems evolve across dozens of prompts. Legal arguments compound across pages. Strategic decisions build on prior constraints.</p>
+  <p style="margin-top:16px;">Without structural continuity, models subtly reintroduce conflicting patterns, shift definitions, or drift from earlier architectural decisions.</p>
+  <p style="margin-top:16px;">Calmkeep reduces that drift. It preserves frameworks so reasoning compounds instead of resetting.</p>
 </div>
 
-<!-- rest of your sections unchanged -->
+<div class="card">
+  <h2>The Core Difference</h2>
+  <p>Standard LLM usage is episodic:</p>
+  <ul>
+    <li>Each turn is processed independently</li>
+    <li>Earlier decisions are reinterpreted rather than preserved</li>
+    <li>Architectural patterns can subtly shift mid-session</li>
+  </ul>
+  <p style="margin-top:24px;">Calmkeep introduces structured continuity:</p>
+  <ul>
+    <li>Preserves earlier architectural decisions across long builds</li>
+    <li>Reduces reintroduction of conflicting libraries or patterns</li>
+    <li>Maintains definitional stability across extended analysis</li>
+    <li>Supports multi-step system evolution without silent drift</li>
+    <li>Enables compound reasoning over long conversational arcs</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>Where It Delivers Value</h2>
+  <ul>
+    <li>Long-session backend API development</li>
+    <li>Large schema evolution and refactor projects</li>
+    <li>Multi-tenant and RBAC-heavy system design</li>
+    <li>Legal and strategic reasoning that builds across documents</li>
+    <li>Multi-session co-development workflows</li>
+  </ul>
+  <p style="margin-top:20px;">The 50th response reflects decisions from responses 1–49 — not just their text, but their structure.</p>
+</div>
+
+<div class="card">
+  <h2>Architecture</h2>
+  <p>Your Application → Calmkeep Runtime → Claude API (BYO Key) → Structured Response</p>
+  <p style="margin-top:16px;">Calmkeep does not modify model weights, alter training data, or introduce hidden memory. It operates as an external orchestration layer around your existing Claude usage.</p>
+  <ul>
+    <li>Bring your own Claude API key</li>
+    <li>Claude billing remains directly with Anthropic</li>
+    <li>No token resale or proxy billing</li>
+    <li>No safeguard bypassing</li>
+    <li>External runtime only</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>What You Receive</h2>
+  <ul>
+    <li>Calmkeep SaaS runtime endpoint</li>
+    <li>Python SDK</li>
+    <li>Continuity-layer orchestration</li>
+    <li>Input/output guardrails enforcement</li>
+    <li>Usage & latency instrumentation</li>
+    <li>Metrics dashboard access</li>
+  </ul>
+  <p style="margin-top:20px;">Claude API usage is billed separately through your own Anthropic account.</p>
+
+<pre>
+from calmkeep import CalmkeepClient
+
+client = CalmkeepClient(
+    calmkeep_key="YOUR_CALMKEEP_SUBSCRIPTION_KEY",
+    claude_key="YOUR_CLAUDE_API_KEY"
+)
+
+response = client.complete(
+    prompt="Continue evolving the existing multi-tenant API..."
+)
+</pre>
+
+</div>
 
 </section>
 
