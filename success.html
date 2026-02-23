@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Calmkeep – Subscription Active</title>
+
+<style>
+:root {
+  --bg:#0b1020;
+  --card:#11172e;
+  --muted:#a7b8d0;
+  --text:#eaf2ff;
+  --electric-500:#1b97ff;
+  --electric-700:#0b72c4;
+  --seafoam:#89f3d1;
+  --shadow:0 12px 34px rgba(0,0,0,.38);
+  --radius-lg:26px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'Segoe UI',Roboto,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1000px 500px at 2% 1%, rgba(137,243,209,.12), transparent 60%),
+    radial-gradient(950px 480px at 98% 99%, rgba(36,164,255,.12), transparent 65%),
+    linear-gradient(#0b1020,#0b1020);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  text-align:center;
+  padding:40px;
+}
+
+.card{
+  background:linear-gradient(
+    180deg,
+    rgba(36,164,255,.07),
+    rgba(137,243,209,.05) 65%,
+    rgba(0,0,0,.2)
+  ), var(--card);
+  border-radius:var(--radius-lg);
+  padding:50px;
+  box-shadow:var(--shadow);
+  max-width:600px;
+}
+
+h1{
+  font-size:34px;
+  margin-bottom:20px;
+  background:linear-gradient(90deg,#24a4ff,#89f3d1);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+
+p{
+  color:var(--muted);
+  line-height:1.8;
+  font-size:16px;
+  margin-bottom:18px;
+}
+
+.btn{
+  cursor:pointer;
+  padding:14px 28px;
+  border-radius:30px;
+  border:none;
+  font-weight:600;
+  font-size:16px;
+  color:#fff;
+  background:linear-gradient(180deg,var(--electric-500),var(--electric-700));
+  box-shadow:0 0 18px rgba(36,164,255,.5),0 8px 30px rgba(0,0,0,.4);
+  margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>Subscription Activated</h1>
+
+  <p>
+    Your Calmkeep subscription is now active.
+  </p>
+
+  <p>
+    Your API key has been generated and linked to your account.
+    You can now begin using the Calmkeep runtime with your Claude API key.
+  </p>
+
+  <p style="font-size:14px;">
+    If you do not see your key, please check your email or contact support.
+  </p>
+
+  <button class="btn" onclick="window.location.href='/'">
+    Return to Homepage
+  </button>
+</div>
+
+</body>
+</html>
