@@ -129,13 +129,12 @@ footer{
     A continuity layer for Claude designed for extended, multi-step workflows where architectural consistency matters.
   </div>
 
-  <button class="btn">Start 14-Day Free Trial</button>
+  <button class="btn" onclick="startCheckout()">Start 14-Day Free Trial</button>
   <button class="btn" style="background:linear-gradient(180deg,#89f3d1,#5ad4b3);color:#0b1020;">
     View Documentation
   </button>
 </header>
 
-<!-- MOVED PRICING SECTION UP -->
 <section class="pricing">
 <h2 style="margin-bottom:30px;">Professional Plan</h2>
 <div class="card" style="max-width:520px;margin:0 auto;">
@@ -150,11 +149,9 @@ footer{
   <p style="margin-top:20px;font-size:14px;color:var(--muted);">
     Claude usage billed separately by Anthropic.
   </p>
-  <button class="btn" style="margin-top:30px;">Start Free Trial</button>
+  <button class="btn" style="margin-top:30px;" onclick="startCheckout()">Start Free Trial</button>
 </div>
 </section>
-
-<!-- ORIGINAL CONTENT FULLY PRESERVED BELOW -->
 
 <section>
 
@@ -243,6 +240,26 @@ response = client.complete(
 </footer>
 
 <div class="bottom-glow"></div>
+
+<script>
+async function startCheckout() {
+  try {
+    const res = await fetch("https://diargallop--calmkeep-service-calmkeep-service.modal.run/billing/create-checkout", {
+      method: "POST"
+    });
+
+    const data = await res.json();
+
+    if (data.checkout_url) {
+      window.location.href = data.checkout_url;
+    } else {
+      alert("Checkout failed.");
+    }
+  } catch (err) {
+    alert("Unable to start checkout. Please try again.");
+  }
+}
+</script>
 
 </body>
 </html>
