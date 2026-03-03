@@ -1,251 +1,408 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Calmkeep</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calmkeep Chat</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-:root{
-  --bg:#0b1020;
-  --card:#11172e;
-  --muted:#a7b8d0;
-  --text:#eaf2ff;
-  --electric:#24a4ff;
-  --seafoam:#89f3d1;
-  --shadow:0 12px 34px rgba(0,0,0,.38);
-  --r:18px;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{
-  font-family:"Segoe UI",Roboto,sans-serif;
-  background:
-    radial-gradient(1000px 500px at 2% 1%, rgba(137,243,209,.12), transparent 60%),
-    radial-gradient(950px 480px at 98% 99%, rgba(36,164,255,.12), transparent 65%),
-    linear-gradient(#0b1020,#0b1020);
-  color:var(--text);
-  padding:24px;
-}
-.wrap{max-width:1200px;margin:0 auto;}
-h1{
-  font-size:28px;
-  margin-bottom:16px;
-  background:linear-gradient(90deg,var(--electric),var(--seafoam));
-  -webkit-background-clip:text;
-  color:transparent;
-}
-.card{
-  background:linear-gradient(180deg, rgba(36,164,255,.07), rgba(137,243,209,.05) 65%, rgba(0,0,0,.2)), var(--card);
-  border-radius:var(--r);
-  box-shadow:var(--shadow);
-  padding:18px;
-  margin-bottom:16px;
-}
-input, textarea, select{
-  width:100%;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.10);
-  background:#0a0f22;
-  color:var(--text);
-  padding:12px;
-  font-size:14px;
-  outline:none;
-}
-textarea{resize:vertical;}
-.btn{
-  cursor:pointer;
-  padding:10px 16px;
-  border-radius:999px;
-  border:none;
-  font-weight:700;
-  font-size:14px;
-  color:#fff;
-  background:linear-gradient(180deg,#1b97ff,#0b72c4);
-  box-shadow:0 0 18px rgba(36,164,255,.35);
-}
-.btn.secondary{
-  background:linear-gradient(180deg,#89f3d1,#5ad4b3);
-  color:#0b1020;
-}
-.row{display:grid;grid-template-columns:1fr 300px;gap:16px;}
-.chat{
-  height:60vh;
-  overflow:auto;
-  padding:14px;
-  border-radius:var(--r);
-  background:#080c1a;
-  border:1px solid rgba(255,255,255,.08);
-}
-.msg{margin:10px 0;display:flex;}
-.me{justify-content:flex-end;}
-.bot{justify-content:flex-start;}
-.bubble{
-  max-width:80%;
-  padding:12px 14px;
-  border-radius:16px;
-  line-height:1.55;
-  white-space:pre-wrap;
-  border:1px solid rgba(255,255,255,.08);
-}
-.me .bubble{background:rgba(36,164,255,.12);}
-.bot .bubble{background:rgba(137,243,209,.10);}
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:12px;
-}
-.small-btn{
-  font-size:12px;
-  padding:6px 12px;
-}
-.sidebar-section{margin-bottom:18px;}
-.sidebar-section h3{
-  font-size:13px;
-  margin-bottom:8px;
-  color:var(--seafoam);
-}
-.locked-box{
-  background:#080c1a;
-  border:1px solid rgba(255,255,255,.08);
-  padding:10px;
-  border-radius:12px;
-  min-height:80px;
-  font-size:13px;
-  white-space:pre-wrap;
-}
-.stability-meter{
-  height:8px;
-  background:#0a0f22;
-  border-radius:999px;
-  overflow:hidden;
-}
-.stability-fill{
-  height:100%;
-  width:75%;
-  background:linear-gradient(90deg,var(--electric),var(--seafoam));
-}
-.composer{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:10px;
-  margin-top:14px;
-}
-</style>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#11172e;
+      --muted:#a7b8d0;
+      --text:#eaf2ff;
+      --electric:#24a4ff;
+      --seafoam:#89f3d1;
+      --shadow:0 12px 34px rgba(0,0,0,.38);
+      --r:18px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family: "Segoe UI", Roboto, sans-serif;
+      background:
+        radial-gradient(1000px 500px at 2% 1%, rgba(137,243,209,.12), transparent 60%),
+        radial-gradient(950px 480px at 98% 99%, rgba(36,164,255,.12), transparent 65%),
+        linear-gradient(#0b1020,#0b1020);
+      color:var(--text);
+      padding:24px;
+    }
+    .wrap{max-width:1100px;margin:0 auto;}
+    h1{
+      font-size:28px;
+      margin-bottom:14px;
+      background:linear-gradient(90deg,var(--electric),var(--seafoam));
+      -webkit-background-clip:text;
+      color:transparent;
+    }
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+    .card{
+      background:linear-gradient(180deg, rgba(36,164,255,.07), rgba(137,243,209,.05) 65%, rgba(0,0,0,.2)), var(--card);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px;}
+    input, textarea{
+      width:100%;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background:#0a0f22;
+      color:var(--text);
+      padding:12px;
+      font-size:14px;
+      outline:none;
+    }
+    input::placeholder, textarea::placeholder{color:rgba(167,184,208,.65);}
+    .btn{
+      cursor:pointer;
+      padding:12px 16px;
+      border-radius:999px;
+      border:none;
+      font-weight:700;
+      font-size:14px;
+      color:#fff;
+      background:linear-gradient(180deg,#1b97ff,#0b72c4);
+      box-shadow:0 0 18px rgba(36,164,255,.35), 0 8px 30px rgba(0,0,0,.35);
+    }
+    .btn.secondary{
+      background:linear-gradient(180deg,#89f3d1,#5ad4b3);
+      color:#0b1020;
+    }
+    .btn.ghost{
+      background:transparent;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:none;
+      color:var(--text);
+    }
+    .btn:disabled{opacity:.55;cursor:not-allowed;}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center;}
+    .hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.6;}
+    .chat{
+      height:54vh;
+      overflow:auto;
+      padding:14px;
+      border-radius:var(--r);
+      background:#080c1a;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .msg{margin:10px 0;display:flex;}
+    .bubble{
+      max-width:82%;
+      padding:12px 14px;
+      border-radius:16px;
+      line-height:1.55;
+      white-space:pre-wrap;
+      word-wrap:break-word;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .me{justify-content:flex-end;}
+    .me .bubble{background:rgba(36,164,255,.12);}
+    .bot{justify-content:flex-start;}
+    .bot .bubble{background:rgba(137,243,209,.10);}
+    .meta{font-size:11px;color:rgba(167,184,208,.8);margin-top:6px;}
+    .composer{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px;}
+    textarea{height:72px;resize:vertical;}
+    .status{margin-top:10px;font-size:12px;color:var(--muted);}
+    code{color:#cce4ff;}
+    .tiny{font-size:12px;color:var(--muted);}
+    .inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .checkbox{
+      display:flex;gap:8px;align-items:center;
+      font-size:12px;color:var(--muted);
+      user-select:none;
+    }
+    .checkbox input{width:auto;}
+  </style>
 </head>
 
 <body>
-<div class="wrap">
-<h1>Calmkeep</h1>
+  <div class="wrap">
+    <h1>Calmkeep Chat</h1>
 
-<div class="card" id="loginCard">
-  <h2 style="margin-bottom:12px;">Sign In</h2>
-  <input id="email" placeholder="Email" />
-  <div style="height:10px"></div>
-  <input id="password" type="password" placeholder="Password" />
-  <div style="margin-top:12px;">
-    <button class="btn" onclick="login()">Login</button>
+    <div class="row">
+      <div class="card">
+        <label>Keys (stored locally in your browser)</label>
+
+        <input id="calmkeepKey" placeholder="Calmkeep key (ck_...)" autocomplete="off" />
+        <div style="height:10px"></div>
+
+        <input id="anthropicKey" placeholder="Claude API key (sk-ant-...)" autocomplete="off" />
+
+        <div class="controls">
+          <button class="btn secondary" id="saveBtn">Save keys</button>
+          <button class="btn ghost" id="clearKeysBtn">Clear keys</button>
+          <label class="checkbox">
+            <input type="checkbox" id="showKeys" />
+            Show keys
+          </label>
+        </div>
+
+        <div class="hint">
+          Requests send headers: <code>calmkeep-key</code> and <code>anthropic-api-key</code>.
+        </div>
+      </div>
+
+      <div class="card">
+        <label>Service</label>
+        <div class="tiny">
+          Runtime: <code id="runtimeLabel"></code>
+        </div>
+        <div class="hint" style="margin-top:10px;">
+          This is a lightweight web chat for professionals who want coherence without extra UI complexity.
+        </div>
+
+        <div class="controls">
+          <button class="btn" id="newChatBtn">New chat</button>
+          <button class="btn secondary" id="exportBtn">Export</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="chat" id="chat"></div>
+
+      <div class="composer">
+        <textarea id="prompt" placeholder="Type a message… (Shift+Enter for newline)"></textarea>
+        <button class="btn" id="sendBtn">Send</button>
+      </div>
+
+      <div class="controls">
+        <button class="btn secondary" id="testLongBtn">Test long response</button>
+        <button class="btn secondary" id="testCodeBtn">Test code blocks</button>
+      </div>
+
+      <div class="status" id="status">Ready.</div>
+      <div class="hint">
+        This page keeps local message history and stitches it into one prompt (simple continuity).
+      </div>
+    </div>
   </div>
-</div>
-
-<div id="app" style="display:none;">
-
-<div class="topbar">
-  <div>
-    <button class="btn secondary small-btn" onclick="logout()">Logout</button>
-  </div>
-</div>
-
-<div class="card">
-  <div class="chat" id="chat"></div>
-
-  <div class="composer">
-    <textarea id="prompt" placeholder="Type a message..."></textarea>
-    <button class="btn" onclick="send()">Send</button>
-  </div>
-</div>
-
-</div>
-</div>
 
 <script>
-const SUPABASE_URL = "https://maceztrkzrrdenomkidh.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_-0Z-efKCiP_9aP1Ve-m3YQ_bn9LZWDz";
-const MODAL_RUNTIME_URL = "https://diargallop--calmkeep-service-calmkeep-service.modal.run/runtime";
+  // -----------------------------
+  // CONFIG
+  // -----------------------------
+  const MODAL_RUNTIME_URL = "https://diargallop--calmkeep-service-calmkeep-service.modal.run/runtime";
 
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+  // -----------------------------
+  // Local storage keys
+  // -----------------------------
+  const LS = {
+    ck: "ck_calmkeep_key",
+    ak: "ck_anthropic_key",
+    hist: "ck_chat_history_v1"
+  };
 
-let history = [];
+  const el = (id) => document.getElementById(id);
+  const chatEl = el("chat");
+  const statusEl = el("status");
 
-async function login(){
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
+  el("runtimeLabel").textContent = MODAL_RUNTIME_URL;
 
-  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  let history = []; // {role:"user"|"assistant", content:string}
 
-  if(error){ alert(error.message); return; }
+  function setStatus(msg){ statusEl.textContent = msg; }
 
-  document.getElementById("loginCard").style.display="none";
-  document.getElementById("app").style.display="block";
-}
+  function addMessage(role, text, meta=""){
+    const row = document.createElement("div");
+    row.className = "msg " + (role === "user" ? "me" : "bot");
 
-async function logout(){
-  await supabaseClient.auth.signOut();
-  document.getElementById("app").style.display="none";
-  document.getElementById("loginCard").style.display="block";
-}
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = text;
 
-window.addEventListener("load", async () => {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if(session){
-    document.getElementById("loginCard").style.display="none";
-    document.getElementById("app").style.display="block";
+    row.appendChild(bubble);
+
+    if (meta) {
+      const m = document.createElement("div");
+      m.className = "meta";
+      m.textContent = meta;
+      const wrap = document.createElement("div");
+      wrap.style.maxWidth = "82%";
+      wrap.appendChild(row);
+      wrap.appendChild(m);
+      chatEl.appendChild(wrap);
+    } else {
+      chatEl.appendChild(row);
+    }
+
+    chatEl.scrollTop = chatEl.scrollHeight;
   }
-});
 
-function addMessage(role, text){
-  const chat = document.getElementById("chat");
-  const row = document.createElement("div");
-  row.className = "msg " + (role === "user" ? "me" : "bot");
+  function getKeys(){
+    return {
+      calmkeepKey: el("calmkeepKey").value.trim(),
+      anthropicKey: el("anthropicKey").value.trim()
+    };
+  }
 
-  const bubble = document.createElement("div");
-  bubble.className = "bubble";
-  bubble.textContent = text;
+  function validateKeys(){
+    const { calmkeepKey, anthropicKey } = getKeys();
+    if (!calmkeepKey) return "Missing Calmkeep key.";
+    if (!anthropicKey) return "Missing Claude API key.";
+    return null;
+  }
 
-  row.appendChild(bubble);
-  chat.appendChild(row);
-  chat.scrollTop = chat.scrollHeight;
-}
+  function stitchPrompt(){
+    const lines = history.map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`);
+    return lines.join("\n\n") + "\n\nAssistant:";
+  }
 
-async function send(){
-  const input = document.getElementById("prompt");
-  const text = input.value.trim();
-  if(!text) return;
+  async function callRuntime(userText){
+    const err = validateKeys();
+    if (err) throw new Error(err);
 
-  addMessage("user", text);
-  input.value="";
+    const { calmkeepKey, anthropicKey } = getKeys();
 
-  const { data: { session } } = await supabaseClient.auth.getSession();
+    history.push({role:"user", content:userText});
 
-  const res = await fetch(MODAL_RUNTIME_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${session.access_token}`
-    },
-    body: JSON.stringify({ prompt: text })
+    const payload = { prompt: stitchPrompt(), params: {} };
+
+    const res = await fetch(MODAL_RUNTIME_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "accept": "application/json",
+        "calmkeep-key": calmkeepKey,
+        "anthropic-api-key": anthropicKey
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const text = await res.text();
+    let data = null;
+    try { data = JSON.parse(text); } catch {}
+
+    if (!res.ok) {
+      const msg = data?.detail ? JSON.stringify(data.detail) : (text || `HTTP ${res.status}`);
+      throw new Error(msg);
+    }
+
+    const out = data?.result?.text ?? "";
+    const latency = data?.latency_ms != null ? `${data.latency_ms}ms` : "";
+    const tokens = data?.usage?.total_tokens != null ? `tokens≈${data.usage.total_tokens}` : "";
+    const meta = [latency, tokens].filter(Boolean).join(" · ");
+
+    history.push({role:"assistant", content: out});
+    localStorage.setItem(LS.hist, JSON.stringify(history));
+
+    return {out, meta};
+  }
+
+  async function send(text){
+    const trimmed = (text || "").trim();
+    if (!trimmed) return;
+
+    el("sendBtn").disabled = true;
+    el("testLongBtn").disabled = true;
+    el("testCodeBtn").disabled = true;
+
+    addMessage("user", trimmed);
+    setStatus("Calling runtime…");
+
+    try {
+      const {out, meta} = await callRuntime(trimmed);
+      addMessage("assistant", out, meta);
+      setStatus("Ready.");
+    } catch (e) {
+      addMessage("assistant", `Error: ${e.message}`);
+      setStatus("Error.");
+    } finally {
+      el("sendBtn").disabled = false;
+      el("testLongBtn").disabled = false;
+      el("testCodeBtn").disabled = false;
+      el("prompt").value = "";
+      el("prompt").focus();
+    }
+  }
+
+  // -----------------------------
+  // UI actions
+  // -----------------------------
+  el("saveBtn").addEventListener("click", () => {
+    localStorage.setItem(LS.ck, el("calmkeepKey").value.trim());
+    localStorage.setItem(LS.ak, el("anthropicKey").value.trim());
+    setStatus("Saved keys locally in this browser.");
   });
 
-  const data = await res.json();
-  const output = data?.result?.text || "Error";
+  el("clearKeysBtn").addEventListener("click", () => {
+    localStorage.removeItem(LS.ck);
+    localStorage.removeItem(LS.ak);
+    el("calmkeepKey").value = "";
+    el("anthropicKey").value = "";
+    setStatus("Cleared keys.");
+  });
 
-  addMessage("assistant", output);
-}
+  el("showKeys").addEventListener("change", (e) => {
+    const show = !!e.target.checked;
+    el("calmkeepKey").type = show ? "text" : "password";
+    el("anthropicKey").type = show ? "text" : "password";
+  });
+
+  el("newChatBtn").addEventListener("click", () => {
+    history = [];
+    chatEl.innerHTML = "";
+    localStorage.removeItem(LS.hist);
+    setStatus("New chat started.");
+  });
+
+  el("exportBtn").addEventListener("click", () => {
+    const text = history.map(m => `${m.role.toUpperCase()}: ${m.content}`).join("\n\n");
+    const blob = new Blob([text], {type:"text/plain"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href=url;
+    a.download="calmkeep-chat.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  el("sendBtn").addEventListener("click", () => send(el("prompt").value));
+
+  el("prompt").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send(el("prompt").value);
+    }
+  });
+
+  el("testLongBtn").addEventListener("click", () => {
+    send("Write a detailed, multi-section explanation (at least 1200 words) of how to design a multi-tenant RBAC API. Use numbered sections and end with a concise checklist.");
+  });
+
+  el("testCodeBtn").addEventListener("click", () => {
+    send("Generate a Python FastAPI example with a code block and ensure the code block is properly closed. Include at least two code blocks.");
+  });
+
+  // -----------------------------
+  // Load saved values
+  // -----------------------------
+  window.addEventListener("load", () => {
+    const ck = localStorage.getItem(LS.ck);
+    const ak = localStorage.getItem(LS.ak);
+    const hist = localStorage.getItem(LS.hist);
+
+    if (ck) el("calmkeepKey").value = ck;
+    if (ak) el("anthropicKey").value = ak;
+
+    // default to masked
+    el("calmkeepKey").type = "password";
+    el("anthropicKey").type = "password";
+
+    if (hist) {
+      try {
+        history = JSON.parse(hist) || [];
+        // re-render last ~30 messages for performance
+        const toRender = history.slice(-30);
+        for (const m of toRender) addMessage(m.role, m.content);
+        setStatus("Restored recent chat from this browser.");
+      } catch {
+        history = [];
+      }
+    } else {
+      setStatus("Ready. Enter keys and send a message.");
+    }
+  });
 </script>
 
 </body>
