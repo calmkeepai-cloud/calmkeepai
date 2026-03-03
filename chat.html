@@ -18,7 +18,7 @@
     }
     *{box-sizing:border-box;margin:0;padding:0;}
     body{
-      font-family: "Segoe UI", Roboto, sans-serif;
+      font-family:"Segoe UI",Roboto,sans-serif;
       background:
         radial-gradient(1000px 500px at 2% 1%, rgba(137,243,209,.12), transparent 60%),
         radial-gradient(950px 480px at 98% 99%, rgba(36,164,255,.12), transparent 65%),
@@ -53,6 +53,7 @@
       outline:none;
     }
     input::placeholder, textarea::placeholder{color:rgba(167,184,208,.65);}
+    textarea{resize:vertical;}
     .btn{
       cursor:pointer;
       padding:12px 16px;
@@ -78,7 +79,7 @@
     .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center;}
     .hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.6;}
     .chat{
-      height:54vh;
+      height:72vh; /* bigger */
       overflow:auto;
       padding:14px;
       border-radius:var(--r);
@@ -101,11 +102,10 @@
     .bot .bubble{background:rgba(137,243,209,.10);}
     .meta{font-size:11px;color:rgba(167,184,208,.8);margin-top:6px;}
     .composer{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px;}
-    textarea{height:72px;resize:vertical;}
+    textarea{height:72px;}
     .status{margin-top:10px;font-size:12px;color:var(--muted);}
     code{color:#cce4ff;}
     .tiny{font-size:12px;color:var(--muted);}
-    .inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
     .checkbox{
       display:flex;gap:8px;align-items:center;
       font-size:12px;color:var(--muted);
@@ -148,7 +148,7 @@
           Runtime: <code id="runtimeLabel"></code>
         </div>
         <div class="hint" style="margin-top:10px;">
-          This is a lightweight web chat for professionals who want coherence without extra UI complexity.
+          Lightweight BYO Claude key web chat for Calmkeep.
         </div>
 
         <div class="controls">
@@ -166,11 +166,6 @@
         <button class="btn" id="sendBtn">Send</button>
       </div>
 
-      <div class="controls">
-        <button class="btn secondary" id="testLongBtn">Test long response</button>
-        <button class="btn secondary" id="testCodeBtn">Test code blocks</button>
-      </div>
-
       <div class="status" id="status">Ready.</div>
       <div class="hint">
         This page keeps local message history and stitches it into one prompt (simple continuity).
@@ -183,6 +178,7 @@
   // CONFIG
   // -----------------------------
   const MODAL_RUNTIME_URL = "https://diargallop--calmkeep-service-calmkeep-service.modal.run/runtime";
+  document.getElementById("runtimeLabel").textContent = MODAL_RUNTIME_URL;
 
   // -----------------------------
   // Local storage keys
@@ -196,8 +192,6 @@
   const el = (id) => document.getElementById(id);
   const chatEl = el("chat");
   const statusEl = el("status");
-
-  el("runtimeLabel").textContent = MODAL_RUNTIME_URL;
 
   let history = []; // {role:"user"|"assistant", content:string}
 
@@ -217,6 +211,7 @@
       const m = document.createElement("div");
       m.className = "meta";
       m.textContent = meta;
+
       const wrap = document.createElement("div");
       wrap.style.maxWidth = "82%";
       wrap.appendChild(row);
@@ -294,8 +289,6 @@
     if (!trimmed) return;
 
     el("sendBtn").disabled = true;
-    el("testLongBtn").disabled = true;
-    el("testCodeBtn").disabled = true;
 
     addMessage("user", trimmed);
     setStatus("Calling runtime…");
@@ -309,8 +302,6 @@
       setStatus("Error.");
     } finally {
       el("sendBtn").disabled = false;
-      el("testLongBtn").disabled = false;
-      el("testCodeBtn").disabled = false;
       el("prompt").value = "";
       el("prompt").focus();
     }
@@ -346,15 +337,33 @@
     setStatus("New chat started.");
   });
 
+  // ✅ Fixed export (no more blank files)
   el("exportBtn").addEventListener("click", () => {
-    const text = history.map(m => `${m.role.toUpperCase()}: ${m.content}`).join("\n\n");
-    const blob = new Blob([text], {type:"text/plain"});
+    if (!history.length) {
+      setStatus("Nothing to export.");
+      return;
+    }
+
+    const lines = history.map(m => {
+      const label = m.role === "user" ? "USER" : "ASSISTANT";
+      return `${label}:\n${m.content}\n`;
+    });
+
+    const text = lines.join("\n-----------------------------\n\n");
+
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
+
     const a = document.createElement("a");
-    a.href=url;
-    a.download="calmkeep-chat.txt";
+    a.href = url;
+    a.download = "calmkeep-chat.txt";
+    document.body.appendChild(a);
     a.click();
+
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    setStatus("Chat exported.");
   });
 
   el("sendBtn").addEventListener("click", () => send(el("prompt").value));
@@ -364,14 +373,6 @@
       e.preventDefault();
       send(el("prompt").value);
     }
-  });
-
-  el("testLongBtn").addEventListener("click", () => {
-    send("Write a detailed, multi-section explanation (at least 1200 words) of how to design a multi-tenant RBAC API. Use numbered sections and end with a concise checklist.");
-  });
-
-  el("testCodeBtn").addEventListener("click", () => {
-    send("Generate a Python FastAPI example with a code block and ensure the code block is properly closed. Include at least two code blocks.");
   });
 
   // -----------------------------
@@ -392,12 +393,12 @@
     if (hist) {
       try {
         history = JSON.parse(hist) || [];
-        // re-render last ~30 messages for performance
         const toRender = history.slice(-30);
         for (const m of toRender) addMessage(m.role, m.content);
         setStatus("Restored recent chat from this browser.");
       } catch {
         history = [];
+        setStatus("Ready. Enter keys and send a message.");
       }
     } else {
       setStatus("Ready. Enter keys and send a message.");
