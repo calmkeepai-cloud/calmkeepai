@@ -27,36 +27,32 @@ body{
     linear-gradient(#0b1020,#0b1020);
 }
 
-/* ===== TOP RIGHT NAV BUTTON ===== */
-.top-nav{
+/* ===== NEW TOP RIGHT CHAT BUTTON ===== */
+.top-chat-btn{
   position:absolute;
   top:30px;
   right:40px;
-  z-index:20;
-}
-
-.chat-cta{
-  padding:14px 32px;
+  padding:16px 36px;
   font-size:16px;
-  font-weight:600;
-  border-radius:40px;
+  font-weight:700;
+  border-radius:50px;
   text-decoration:none;
   color:#0b1020;
   background:linear-gradient(180deg,#89f3d1,#3ce7c3);
   box-shadow:
-    0 0 22px rgba(137,243,209,.45),
-    0 10px 28px rgba(0,0,0,.4);
+    0 0 28px rgba(137,243,209,.45),
+    0 12px 40px rgba(0,0,0,.45);
   transition:all .25s ease;
+  z-index:100;
 }
-
-.chat-cta:hover{
+.top-chat-btn:hover{
   transform:translateY(-2px);
   box-shadow:
-    0 0 34px rgba(137,243,209,.7),
-    0 14px 40px rgba(0,0,0,.55);
+    0 0 40px rgba(137,243,209,.75),
+    0 16px 50px rgba(0,0,0,.55);
 }
 
-/* ===== LARGER GRADIENT LOGO ===== */
+/* ===== UPDATED LOGO STYLE ===== */
 h1{
   font-size:64px;
   font-weight:800;
@@ -69,7 +65,7 @@ h1{
 
 header{
   text-align:center;
-  padding:140px 20px 60px;
+  padding:120px 20px 60px;
 }
 
 .subtitle{
@@ -168,12 +164,9 @@ footer{
 
 <body>
 
-<!-- TOP RIGHT CHAT BUTTON -->
-<div class="top-nav">
-  <a href="https://calmkeep.ai/chat" class="chat-cta">
-    Launch Live Chat →
-  </a>
-</div>
+<a href="https://calmkeep.ai/chat" class="top-chat-btn">
+  Launch Live Chat →
+</a>
 
 <header>
   <h1>Calmkeep</h1>
@@ -187,6 +180,8 @@ footer{
     View Documentation
   </button>
 </header>
+
+<!-- EVERYTHING BELOW THIS POINT IS EXACTLY YOUR ORIGINAL CONTENT -->
 
 <section class="pricing">
 <h2 style="margin-bottom:30px;">Professional Plan</h2>
