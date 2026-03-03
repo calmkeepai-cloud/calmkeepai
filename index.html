@@ -1,4 +1,4 @@
-<!doctype html>
+can you attractively insert a large button at the top of my index.html that goes to calmkeep.ai/chat in a way that looks good and draws the eye. <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -6,6 +6,50 @@
 <title>Calmkeep – Continuity Layer for Claude</title>
 
 <style>
+  /* ===== Top Chat CTA Bar ===== */
+.top-chat-bar{
+  width:100%;
+  background:linear-gradient(90deg,#0e162f,#0b1020);
+  padding:22px 20px;
+  text-align:center;
+  position:relative;
+  z-index:10;
+  border-bottom:1px solid rgba(137,243,209,.15);
+}
+
+.chat-cta{
+  display:inline-block;
+  padding:18px 44px;
+  font-size:20px;
+  font-weight:700;
+  border-radius:50px;
+  text-decoration:none;
+  color:#0b1020;
+  background:linear-gradient(180deg,#89f3d1,#3ce7c3);
+  box-shadow:
+    0 0 28px rgba(137,243,209,.45),
+    0 12px 40px rgba(0,0,0,.45);
+  transition:all .25s ease;
+  letter-spacing:.3px;
+}
+
+.chat-cta:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 0 40px rgba(137,243,209,.7),
+    0 16px 50px rgba(0,0,0,.55);
+}
+
+/* Subtle pulse animation */
+@keyframes chatPulse{
+  0%{ box-shadow:0 0 28px rgba(137,243,209,.45),0 12px 40px rgba(0,0,0,.45); }
+  50%{ box-shadow:0 0 42px rgba(137,243,209,.75),0 12px 40px rgba(0,0,0,.45); }
+  100%{ box-shadow:0 0 28px rgba(137,243,209,.45),0 12px 40px rgba(0,0,0,.45); }
+}
+
+.chat-cta{
+  animation:chatPulse 3.5s ease-in-out infinite;
+}
 :root {
   --bg:#0b1020;
   --card:#11172e;
@@ -26,48 +70,17 @@ body{
     radial-gradient(950px 480px at 98% 99%, rgba(36,164,255,.12), transparent 65%),
     linear-gradient(#0b1020,#0b1020);
 }
-
-/* ===== NEW TOP RIGHT CHAT BUTTON ===== */
-.top-chat-btn{
-  position:absolute;
-  top:30px;
-  right:40px;
-  padding:16px 36px;
-  font-size:16px;
-  font-weight:700;
-  border-radius:50px;
-  text-decoration:none;
-  color:#0b1020;
-  background:linear-gradient(180deg,#89f3d1,#3ce7c3);
-  box-shadow:
-    0 0 28px rgba(137,243,209,.45),
-    0 12px 40px rgba(0,0,0,.45);
-  transition:all .25s ease;
-  z-index:100;
-}
-.top-chat-btn:hover{
-  transform:translateY(-2px);
-  box-shadow:
-    0 0 40px rgba(137,243,209,.75),
-    0 16px 50px rgba(0,0,0,.55);
-}
-
-/* ===== UPDATED LOGO STYLE ===== */
-h1{
-  font-size:64px;
-  font-weight:800;
-  letter-spacing:1px;
-  background:linear-gradient(90deg,#1b97ff 0%, #24a4ff 40%, #89f3d1 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  margin-bottom:18px;
-}
-
 header{
   text-align:center;
-  padding:120px 20px 60px;
+  padding:100px 20px 60px;
 }
-
+h1{
+  font-size:48px;
+  background:linear-gradient(90deg,#24a4ff,#89f3d1);
+  -webkit-background-clip:text;
+  color:transparent;
+  margin-bottom:18px;
+}
 .subtitle{
   font-size:18px;
   color:var(--muted);
@@ -75,7 +88,6 @@ header{
   margin:0 auto 30px;
   line-height:1.7;
 }
-
 .btn{
   cursor:pointer;
   padding:14px 28px;
@@ -88,13 +100,11 @@ header{
   box-shadow:0 0 18px rgba(36,164,255,.5),0 8px 30px rgba(0,0,0,.4);
   margin:10px;
 }
-
 section{
   max-width:1100px;
   margin:80px auto;
   padding:0 20px;
 }
-
 .card{
   background:linear-gradient(
     180deg,
@@ -107,26 +117,22 @@ section{
   box-shadow:var(--shadow);
   margin-bottom:40px;
 }
-
 h2{
   font-size:28px;
   margin-bottom:18px;
   color:var(--seafoam);
 }
-
 p{
   color:var(--muted);
   line-height:1.8;
   font-size:16px;
 }
-
 ul{
   margin-top:16px;
   padding-left:20px;
   color:var(--muted);
   line-height:1.8;
 }
-
 pre{
   background:#0a0f22;
   padding:20px;
@@ -136,17 +142,14 @@ pre{
   overflow:auto;
   margin-top:20px;
 }
-
 .pricing{
   text-align:center;
 }
-
 .price{
   font-size:42px;
   margin:20px 0;
   font-weight:700;
 }
-
 footer{
   text-align:center;
   padding:60px 20px;
@@ -154,7 +157,6 @@ footer{
   color:var(--muted);
   opacity:.8;
 }
-
 .bottom-glow{
   height:250px;
   background: radial-gradient(70% 100% at 50% 100%, rgba(137,243,209,0.25), transparent 80%);
@@ -163,10 +165,6 @@ footer{
 </head>
 
 <body>
-
-<a href="https://calmkeep.ai/chat" class="top-chat-btn">
-  Launch Live Chat →
-</a>
 
 <header>
   <h1>Calmkeep</h1>
@@ -180,8 +178,6 @@ footer{
     View Documentation
   </button>
 </header>
-
-<!-- EVERYTHING BELOW THIS POINT IS EXACTLY YOUR ORIGINAL CONTENT -->
 
 <section class="pricing">
 <h2 style="margin-bottom:30px;">Professional Plan</h2>
@@ -314,3 +310,5 @@ async function startCheckout() {
 
 </body>
 </html>
+
+
