@@ -140,7 +140,6 @@ textarea{resize:vertical;}
 <div class="wrap">
 <h1>Calmkeep</h1>
 
-<!-- LOGIN -->
 <div class="card" id="loginCard">
   <h2 style="margin-bottom:12px;">Sign In</h2>
   <input id="email" placeholder="Email" />
@@ -151,54 +150,20 @@ textarea{resize:vertical;}
   </div>
 </div>
 
-<!-- APP -->
 <div id="app" style="display:none;">
 
 <div class="topbar">
-  <select id="workspace">
-    <option>General</option>
-    <option>Legal</option>
-    <option>Strategy</option>
-    <option>Code</option>
-  </select>
-
   <div>
-    <button class="btn secondary small-btn" onclick="exportChat()">Export</button>
-    <button class="btn small-btn" onclick="newChat()">New Chat</button>
     <button class="btn secondary small-btn" onclick="logout()">Logout</button>
   </div>
 </div>
 
-<div class="row">
-  <div>
-    <div class="card">
-      <div class="chat" id="chat"></div>
+<div class="card">
+  <div class="chat" id="chat"></div>
 
-      <div class="composer">
-        <textarea id="prompt" placeholder="Type a message... (Shift+Enter for newline)"></textarea>
-        <button class="btn" onclick="send()">Send</button>
-      </div>
-    </div>
-  </div>
-
-  <div>
-    <div class="card sidebar-section">
-      <h3>Locked Definitions</h3>
-      <div class="locked-box" id="locked"></div>
-      <div style="margin-top:8px;">
-        <button class="btn secondary small-btn" onclick="lockLast()">Lock Last Response</button>
-      </div>
-    </div>
-
-    <div class="card sidebar-section">
-      <h3>Stability Indicator</h3>
-      <div class="stability-meter">
-        <div class="stability-fill"></div>
-      </div>
-      <div style="font-size:12px;color:var(--muted);margin-top:6px;">
-        Continuity strong
-      </div>
-    </div>
+  <div class="composer">
+    <textarea id="prompt" placeholder="Type a message..."></textarea>
+    <button class="btn" onclick="send()">Send</button>
   </div>
 </div>
 
@@ -207,7 +172,7 @@ textarea{resize:vertical;}
 
 <script>
 const SUPABASE_URL = "https://maceztrkzrrdenomkidh.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_PUBLISHABLE_KEY_HERE";
+const SUPABASE_ANON_KEY = "sb_publishable_-0Z-efKCiP_9aP1Ve-m3YQ_bn9LZWDz";
 const MODAL_RUNTIME_URL = "https://diargallop--calmkeep-service-calmkeep-service.modal.run/runtime";
 
 const supabaseClient = supabase.createClient(
@@ -216,7 +181,6 @@ const supabaseClient = supabase.createClient(
 );
 
 let history = [];
-let lockedText = "";
 
 async function login(){
   const email = document.getElementById("email").value.trim();
@@ -264,7 +228,6 @@ async function send(){
   if(!text) return;
 
   addMessage("user", text);
-  history.push({role:"user",content:text});
   input.value="";
 
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -282,32 +245,6 @@ async function send(){
   const output = data?.result?.text || "Error";
 
   addMessage("assistant", output);
-  history.push({role:"assistant",content:output});
-}
-
-function lockLast(){
-  const last = history.filter(m=>m.role==="assistant").slice(-1)[0];
-  if(!last) return;
-  lockedText += "\n\n" + last.content;
-  document.getElementById("locked").textContent = lockedText.trim();
-}
-
-function newChat(){
-  history=[];
-  document.getElementById("chat").innerHTML="";
-  lockedText="";
-  document.getElementById("locked").textContent="";
-}
-
-function exportChat(){
-  const text = history.map(m=>`${m.role.toUpperCase()}: ${m.content}`).join("\n\n");
-  const blob = new Blob([text], {type:"text/plain"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href=url;
-  a.download="calmkeep-chat.txt";
-  a.click();
-  URL.revokeObjectURL(url);
 }
 </script>
 
