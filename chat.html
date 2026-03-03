@@ -8,7 +8,131 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-/* (unchanged styling — omitted here for brevity, keep yours exactly as is) */
+:root{
+  --bg:#0b1020;
+  --card:#11172e;
+  --muted:#a7b8d0;
+  --text:#eaf2ff;
+  --electric:#24a4ff;
+  --seafoam:#89f3d1;
+  --shadow:0 12px 34px rgba(0,0,0,.38);
+  --r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:"Segoe UI",Roboto,sans-serif;
+  background:
+    radial-gradient(1000px 500px at 2% 1%, rgba(137,243,209,.12), transparent 60%),
+    radial-gradient(950px 480px at 98% 99%, rgba(36,164,255,.12), transparent 65%),
+    linear-gradient(#0b1020,#0b1020);
+  color:var(--text);
+  padding:24px;
+}
+.wrap{max-width:1200px;margin:0 auto;}
+h1{
+  font-size:28px;
+  margin-bottom:16px;
+  background:linear-gradient(90deg,var(--electric),var(--seafoam));
+  -webkit-background-clip:text;
+  color:transparent;
+}
+.card{
+  background:linear-gradient(180deg, rgba(36,164,255,.07), rgba(137,243,209,.05) 65%, rgba(0,0,0,.2)), var(--card);
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  padding:18px;
+  margin-bottom:16px;
+}
+input, textarea, select{
+  width:100%;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.10);
+  background:#0a0f22;
+  color:var(--text);
+  padding:12px;
+  font-size:14px;
+  outline:none;
+}
+textarea{resize:vertical;}
+.btn{
+  cursor:pointer;
+  padding:10px 16px;
+  border-radius:999px;
+  border:none;
+  font-weight:700;
+  font-size:14px;
+  color:#fff;
+  background:linear-gradient(180deg,#1b97ff,#0b72c4);
+  box-shadow:0 0 18px rgba(36,164,255,.35);
+}
+.btn.secondary{
+  background:linear-gradient(180deg,#89f3d1,#5ad4b3);
+  color:#0b1020;
+}
+.row{display:grid;grid-template-columns:1fr 300px;gap:16px;}
+.chat{
+  height:60vh;
+  overflow:auto;
+  padding:14px;
+  border-radius:var(--r);
+  background:#080c1a;
+  border:1px solid rgba(255,255,255,.08);
+}
+.msg{margin:10px 0;display:flex;}
+.me{justify-content:flex-end;}
+.bot{justify-content:flex-start;}
+.bubble{
+  max-width:80%;
+  padding:12px 14px;
+  border-radius:16px;
+  line-height:1.55;
+  white-space:pre-wrap;
+  border:1px solid rgba(255,255,255,.08);
+}
+.me .bubble{background:rgba(36,164,255,.12);}
+.bot .bubble{background:rgba(137,243,209,.10);}
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+.small-btn{
+  font-size:12px;
+  padding:6px 12px;
+}
+.sidebar-section{margin-bottom:18px;}
+.sidebar-section h3{
+  font-size:13px;
+  margin-bottom:8px;
+  color:var(--seafoam);
+}
+.locked-box{
+  background:#080c1a;
+  border:1px solid rgba(255,255,255,.08);
+  padding:10px;
+  border-radius:12px;
+  min-height:80px;
+  font-size:13px;
+  white-space:pre-wrap;
+}
+.stability-meter{
+  height:8px;
+  background:#0a0f22;
+  border-radius:999px;
+  overflow:hidden;
+}
+.stability-fill{
+  height:100%;
+  width:75%;
+  background:linear-gradient(90deg,var(--electric),var(--seafoam));
+}
+.composer{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  margin-top:14px;
+}
 </style>
 </head>
 
@@ -29,22 +153,62 @@
 
 <!-- APP -->
 <div id="app" style="display:none;">
-<!-- (your entire UI remains unchanged) -->
+
+<div class="topbar">
+  <select id="workspace">
+    <option>General</option>
+    <option>Legal</option>
+    <option>Strategy</option>
+    <option>Code</option>
+  </select>
+
+  <div>
+    <button class="btn secondary small-btn" onclick="exportChat()">Export</button>
+    <button class="btn small-btn" onclick="newChat()">New Chat</button>
+    <button class="btn secondary small-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="row">
+  <div>
+    <div class="card">
+      <div class="chat" id="chat"></div>
+
+      <div class="composer">
+        <textarea id="prompt" placeholder="Type a message... (Shift+Enter for newline)"></textarea>
+        <button class="btn" onclick="send()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card sidebar-section">
+      <h3>Locked Definitions</h3>
+      <div class="locked-box" id="locked"></div>
+      <div style="margin-top:8px;">
+        <button class="btn secondary small-btn" onclick="lockLast()">Lock Last Response</button>
+      </div>
+    </div>
+
+    <div class="card sidebar-section">
+      <h3>Stability Indicator</h3>
+      <div class="stability-meter">
+        <div class="stability-fill"></div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;">
+        Continuity strong
+      </div>
+    </div>
+  </div>
+</div>
+
 </div>
 </div>
 
 <script>
-// ======================
-// CONFIG (YOUR REAL VALUES)
-// ======================
-
 const SUPABASE_URL = "https://maceztrkzrrdenomkidh.supabase.co";
-
-const SUPABASE_ANON_KEY = 
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hY2V6dHJrenJyZGVub21raWRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0NDc4NTQsImV4cCI6MjA4NzAyMzg1NH0.E3NTmVFP-9SL_0yw-AMaihhjluVcRKxXraBtipHUaB4";
-
-const MODAL_RUNTIME_URL =
-"https://diargallop--calmkeep-service-calmkeep-service.modal.run/runtime";
+const SUPABASE_ANON_KEY = "YOUR_PUBLISHABLE_KEY_HERE";
+const MODAL_RUNTIME_URL = "https://diargallop--calmkeep-service-calmkeep-service.modal.run/runtime";
 
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
@@ -54,23 +218,13 @@ const supabaseClient = supabase.createClient(
 let history = [];
 let lockedText = "";
 
-// ======================
-// AUTH
-// ======================
-
 async function login(){
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
 
-  const { error } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
-  if(error){
-    alert(error.message);
-    return;
-  }
+  if(error){ alert(error.message); return; }
 
   document.getElementById("loginCard").style.display="none";
   document.getElementById("app").style.display="block";
@@ -89,10 +243,6 @@ window.addEventListener("load", async () => {
     document.getElementById("app").style.display="block";
   }
 });
-
-// ======================
-// CHAT
-// ======================
 
 function addMessage(role, text){
   const chat = document.getElementById("chat");
