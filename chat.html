@@ -79,7 +79,7 @@
     .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center;}
     .hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.6;}
     .chat{
-      height:72vh; /* bigger */
+      height:72vh;
       overflow:auto;
       padding:14px;
       border-radius:var(--r);
@@ -112,6 +112,50 @@
       user-select:none;
     }
     .checkbox input{width:auto;}
+
+    /* Export modal */
+    .modalOverlay{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:9999;
+    }
+    .modal{
+      width:min(920px, 100%);
+      background:linear-gradient(180deg, rgba(36,164,255,.07), rgba(137,243,209,.05) 65%, rgba(0,0,0,.2)), var(--card);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+    .modalTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .modalTitle{
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    .exportText{
+      width:100%;
+      height:52vh;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background:#080c1a;
+      color:var(--text);
+      padding:12px;
+      font-size:13px;
+      line-height:1.5;
+      outline:none;
+      resize:vertical;
+      white-space:pre;
+    }
   </style>
 </head>
 
@@ -129,8 +173,8 @@
         <input id="anthropicKey" placeholder="Claude API key (sk-ant-...)" autocomplete="off" />
 
         <div class="controls">
-          <button class="btn secondary" id="saveBtn">Save keys</button>
-          <button class="btn ghost" id="clearKeysBtn">Clear keys</button>
+          <button class="btn secondary" type="button" id="saveBtn">Save keys</button>
+          <button class="btn ghost" type="button" id="clearKeysBtn">Clear keys</button>
           <label class="checkbox">
             <input type="checkbox" id="showKeys" />
             Show keys
@@ -152,8 +196,8 @@
         </div>
 
         <div class="controls">
-          <button class="btn" id="newChatBtn">New chat</button>
-          <button class="btn secondary" id="exportBtn">Export</button>
+          <button class="btn" type="button" id="newChatBtn">New chat</button>
+          <button class="btn secondary" type="button" id="exportBtn">Export</button>
         </div>
       </div>
     </div>
@@ -163,7 +207,7 @@
 
       <div class="composer">
         <textarea id="prompt" placeholder="Type a message… (Shift+Enter for newline)"></textarea>
-        <button class="btn" id="sendBtn">Send</button>
+        <button class="btn" type="button" id="sendBtn">Send</button>
       </div>
 
       <div class="status" id="status">Ready.</div>
@@ -173,12 +217,31 @@
     </div>
   </div>
 
+  <!-- Export Modal (fallback for iOS / blocked downloads) -->
+  <div class="modalOverlay" id="exportOverlay">
+    <div class="modal">
+      <div class="modalTop">
+        <div class="modalTitle">Export Chat</div>
+        <div class="controls" style="margin-top:0;">
+          <button class="btn secondary" type="button" id="copyExportBtn">Copy</button>
+          <button class="btn ghost" type="button" id="closeExportBtn">Close</button>
+        </div>
+      </div>
+      <textarea class="exportText" id="exportText" readonly></textarea>
+      <div class="hint" style="margin-top:10px;">
+        If your browser blocks downloads, you can copy from here or open in a new tab.
+      </div>
+      <div class="controls">
+        <button class="btn ghost" type="button" id="openTabBtn">Open in new tab</button>
+      </div>
+    </div>
+  </div>
+
 <script>
   // -----------------------------
   // CONFIG
   // -----------------------------
   const MODAL_RUNTIME_URL = "https://diargallop--calmkeep-service-calmkeep-service.modal.run/runtime";
-  document.getElementById("runtimeLabel").textContent = MODAL_RUNTIME_URL;
 
   // -----------------------------
   // Local storage keys
@@ -189,15 +252,20 @@
     hist: "ck_chat_history_v1"
   };
 
-  const el = (id) => document.getElementById(id);
-  const chatEl = el("chat");
-  const statusEl = el("status");
-
+  // -----------------------------
+  // State
+  // -----------------------------
   let history = []; // {role:"user"|"assistant", content:string}
 
-  function setStatus(msg){ statusEl.textContent = msg; }
+  // -----------------------------
+  // Helpers
+  // -----------------------------
+  const el = (id) => document.getElementById(id);
+
+  function setStatus(msg){ el("status").textContent = msg; }
 
   function addMessage(role, text, meta=""){
+    const chatEl = el("chat");
     const row = document.createElement("div");
     row.className = "msg " + (role === "user" ? "me" : "bot");
 
@@ -241,6 +309,15 @@
   function stitchPrompt(){
     const lines = history.map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`);
     return lines.join("\n\n") + "\n\nAssistant:";
+  }
+
+  function buildExportText(){
+    if (!history.length) return "";
+    const blocks = history.map(m => {
+      const label = m.role === "user" ? "USER" : "ASSISTANT";
+      return `${label}:\n${m.content}\n`;
+    });
+    return blocks.join("\n-----------------------------\n\n");
   }
 
   async function callRuntime(userText){
@@ -308,77 +385,48 @@
   }
 
   // -----------------------------
-  // UI actions
+  // Export logic (download + iOS-safe fallback)
   // -----------------------------
-  el("saveBtn").addEventListener("click", () => {
-    localStorage.setItem(LS.ck, el("calmkeepKey").value.trim());
-    localStorage.setItem(LS.ak, el("anthropicKey").value.trim());
-    setStatus("Saved keys locally in this browser.");
-  });
+  function openExportModal(text){
+    el("exportText").value = text || "";
+    el("exportOverlay").style.display = "flex";
+  }
+  function closeExportModal(){
+    el("exportOverlay").style.display = "none";
+  }
 
-  el("clearKeysBtn").addEventListener("click", () => {
-    localStorage.removeItem(LS.ck);
-    localStorage.removeItem(LS.ak);
-    el("calmkeepKey").value = "";
-    el("anthropicKey").value = "";
-    setStatus("Cleared keys.");
-  });
-
-  el("showKeys").addEventListener("change", (e) => {
-    const show = !!e.target.checked;
-    el("calmkeepKey").type = show ? "text" : "password";
-    el("anthropicKey").type = show ? "text" : "password";
-  });
-
-  el("newChatBtn").addEventListener("click", () => {
-    history = [];
-    chatEl.innerHTML = "";
-    localStorage.removeItem(LS.hist);
-    setStatus("New chat started.");
-  });
-
-  // ✅ Fixed export (no more blank files)
-  el("exportBtn").addEventListener("click", () => {
-    if (!history.length) {
-      setStatus("Nothing to export.");
-      return;
-    }
-
-    const lines = history.map(m => {
-      const label = m.role === "user" ? "USER" : "ASSISTANT";
-      return `${label}:\n${m.content}\n`;
-    });
-
-    const text = lines.join("\n-----------------------------\n\n");
-
+  function tryDownload(text){
+    // Attempt a Blob download (may be blocked on iOS)
     const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
     a.href = url;
     a.download = "calmkeep-chat.txt";
+    a.rel = "noopener";
+
     document.body.appendChild(a);
     a.click();
-
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
 
-    setStatus("Chat exported.");
-  });
+    // cleanup
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
 
-  el("sendBtn").addEventListener("click", () => send(el("prompt").value));
-
-  el("prompt").addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      send(el("prompt").value);
-    }
-  });
+  function openInNewTab(text){
+    // Always works on iOS: open plain text in a new tab
+    const encoded = encodeURIComponent(text);
+    const dataUrl = "data:text/plain;charset=utf-8," + encoded;
+    window.open(dataUrl, "_blank", "noopener,noreferrer");
+  }
 
   // -----------------------------
-  // Load saved values
+  // Bind after DOM is ready
   // -----------------------------
-  window.addEventListener("load", () => {
+  window.addEventListener("DOMContentLoaded", () => {
+    el("runtimeLabel").textContent = MODAL_RUNTIME_URL;
+
+    // load saved keys/history
     const ck = localStorage.getItem(LS.ck);
     const ak = localStorage.getItem(LS.ak);
     const hist = localStorage.getItem(LS.hist);
@@ -386,7 +434,6 @@
     if (ck) el("calmkeepKey").value = ck;
     if (ak) el("anthropicKey").value = ak;
 
-    // default to masked
     el("calmkeepKey").type = "password";
     el("anthropicKey").type = "password";
 
@@ -403,6 +450,85 @@
     } else {
       setStatus("Ready. Enter keys and send a message.");
     }
+
+    // handlers
+    el("saveBtn").addEventListener("click", () => {
+      localStorage.setItem(LS.ck, el("calmkeepKey").value.trim());
+      localStorage.setItem(LS.ak, el("anthropicKey").value.trim());
+      setStatus("Saved keys locally in this browser.");
+    });
+
+    el("clearKeysBtn").addEventListener("click", () => {
+      localStorage.removeItem(LS.ck);
+      localStorage.removeItem(LS.ak);
+      el("calmkeepKey").value = "";
+      el("anthropicKey").value = "";
+      setStatus("Cleared keys.");
+    });
+
+    el("showKeys").addEventListener("change", (e) => {
+      const show = !!e.target.checked;
+      el("calmkeepKey").type = show ? "text" : "password";
+      el("anthropicKey").type = show ? "text" : "password";
+    });
+
+    el("newChatBtn").addEventListener("click", () => {
+      history = [];
+      el("chat").innerHTML = "";
+      localStorage.removeItem(LS.hist);
+      setStatus("New chat started.");
+    });
+
+    el("sendBtn").addEventListener("click", () => send(el("prompt").value));
+
+    el("prompt").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        send(el("prompt").value);
+      }
+    });
+
+    el("exportBtn").addEventListener("click", () => {
+      const text = buildExportText();
+      if (!text) {
+        setStatus("Nothing to export.");
+        return;
+      }
+
+      // Always show modal so user has a guaranteed way out.
+      openExportModal(text);
+
+      // Try the download path, but don't rely on it.
+      try {
+        tryDownload(text);
+        setStatus("Export started (if download is blocked, use the export window).");
+      } catch {
+        setStatus("Download blocked — use the export window.");
+      }
+    });
+
+    el("closeExportBtn").addEventListener("click", closeExportModal);
+    el("exportOverlay").addEventListener("click", (e) => {
+      if (e.target === el("exportOverlay")) closeExportModal();
+    });
+
+    el("copyExportBtn").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(el("exportText").value);
+        setStatus("Copied export to clipboard.");
+      } catch {
+        // fallback: select text
+        el("exportText").focus();
+        el("exportText").select();
+        setStatus("Select-all ready — copy manually.");
+      }
+    });
+
+    el("openTabBtn").addEventListener("click", () => {
+      const text = el("exportText").value || "";
+      if (!text) return;
+      openInNewTab(text);
+    });
   });
 </script>
 
