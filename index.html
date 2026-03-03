@@ -1,4 +1,4 @@
- <!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -6,50 +6,6 @@
 <title>Calmkeep – Continuity Layer for Claude</title>
 
 <style>
-  /* ===== Top Chat CTA Bar ===== */
-.top-chat-bar{
-  width:100%;
-  background:linear-gradient(90deg,#0e162f,#0b1020);
-  padding:22px 20px;
-  text-align:center;
-  position:relative;
-  z-index:10;
-  border-bottom:1px solid rgba(137,243,209,.15);
-}
-
-.chat-cta{
-  display:inline-block;
-  padding:18px 44px;
-  font-size:20px;
-  font-weight:700;
-  border-radius:50px;
-  text-decoration:none;
-  color:#0b1020;
-  background:linear-gradient(180deg,#89f3d1,#3ce7c3);
-  box-shadow:
-    0 0 28px rgba(137,243,209,.45),
-    0 12px 40px rgba(0,0,0,.45);
-  transition:all .25s ease;
-  letter-spacing:.3px;
-}
-
-.chat-cta:hover{
-  transform:translateY(-2px);
-  box-shadow:
-    0 0 40px rgba(137,243,209,.7),
-    0 16px 50px rgba(0,0,0,.55);
-}
-
-/* Subtle pulse animation */
-@keyframes chatPulse{
-  0%{ box-shadow:0 0 28px rgba(137,243,209,.45),0 12px 40px rgba(0,0,0,.45); }
-  50%{ box-shadow:0 0 42px rgba(137,243,209,.75),0 12px 40px rgba(0,0,0,.45); }
-  100%{ box-shadow:0 0 28px rgba(137,243,209,.45),0 12px 40px rgba(0,0,0,.45); }
-}
-
-.chat-cta{
-  animation:chatPulse 3.5s ease-in-out infinite;
-}
 :root {
   --bg:#0b1020;
   --card:#11172e;
@@ -69,7 +25,34 @@ body{
     radial-gradient(1000px 500px at 2% 1%, rgba(137,243,209,.12), transparent 60%),
     radial-gradient(950px 480px at 98% 99%, rgba(36,164,255,.12), transparent 65%),
     linear-gradient(#0b1020,#0b1020);
+  position:relative;
 }
+
+/* SAFE TOP RIGHT CHAT BUTTON */
+.chat-top-right{
+  position:fixed;
+  top:24px;
+  right:32px;
+  padding:14px 30px;
+  font-size:15px;
+  font-weight:700;
+  border-radius:40px;
+  text-decoration:none;
+  color:#0b1020;
+  background:linear-gradient(180deg,#89f3d1,#3ce7c3);
+  box-shadow:
+    0 0 24px rgba(137,243,209,.45),
+    0 8px 30px rgba(0,0,0,.45);
+  transition:all .25s ease;
+  z-index:9999;
+}
+.chat-top-right:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 0 36px rgba(137,243,209,.7),
+    0 12px 40px rgba(0,0,0,.6);
+}
+
 header{
   text-align:center;
   padding:100px 20px 60px;
@@ -166,6 +149,10 @@ footer{
 
 <body>
 
+<a href="https://calmkeep.ai/chat" class="chat-top-right">
+  Launch Live Chat →
+</a>
+
 <header>
   <h1>Calmkeep</h1>
   <div class="subtitle">
@@ -232,7 +219,6 @@ footer{
     <li>Large schema evolution and refactor projects</li>
     <li>Multi-tenant and RBAC-heavy system design</li>
     <li>Legal and strategic reasoning that builds across documents</li>
-    <li>Multi-session co-development workflows</li>
   </ul>
   <p style="margin-top:20px;">The 50th response reflects decisions from responses 1–49 — not just their text, but their structure.</p>
 </div>
@@ -310,6 +296,3 @@ async function startCheckout() {
 
 </body>
 </html>
-
-
-
