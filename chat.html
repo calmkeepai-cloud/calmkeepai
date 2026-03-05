@@ -156,6 +156,75 @@
       resize:vertical;
       white-space:pre;
     }
+    /* -----------------------------
+   MOBILE OPTIMIZATION
+   Activates on phones only
+----------------------------- */
+@media (max-width: 768px){
+
+  body{
+    padding:12px;
+    overflow-x:hidden;
+  }
+
+  .wrap{
+    max-width:100%;
+  }
+
+  h1{
+    font-size:22px;
+  }
+
+  /* stack cards vertically instead of side-by-side */
+  .row{
+    grid-template-columns:1fr;
+  }
+
+  .card{
+    padding:14px;
+  }
+
+  /* chat window fills most of screen */
+  .chat{
+    height:60vh;
+  }
+
+  /* composer behaves like mobile chat apps */
+  .composer{
+    position:sticky;
+    bottom:0;
+    background:var(--card);
+    padding:10px;
+    border-top:1px solid rgba(255,255,255,.08);
+    grid-template-columns:1fr auto;
+  }
+
+  textarea{
+    height:60px;
+    font-size:16px; /* prevents iOS zoom on focus */
+  }
+
+  .btn{
+    padding:12px 14px;
+    font-size:14px;
+  }
+
+  /* keep bubbles readable */
+  .bubble{
+    max-width:90%;
+    font-size:15px;
+  }
+
+  /* modal adjustments */
+  .modal{
+    padding:14px;
+  }
+
+  .exportText{
+    height:45vh;
+  }
+
+}
   </style>
 </head>
 
