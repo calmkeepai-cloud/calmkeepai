@@ -5,65 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Compliance & Integrity Audit — Transcripts A & B</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-/* MOBILE RESPONSIVE LAYOUT */
-@media (max-width: 768px){
 
-  header{
-    padding:70px 18px 40px;
-  }
-
-  h1{
-    font-size:36px;
-  }
-
-  .subtitle{
-    font-size:16px;
-    line-height:1.6;
-  }
-
-  section{
-    margin:50px auto;
-  }
-
-  .card{
-    padding:26px;
-  }
-
-  .price{
-    font-size:34px;
-  }
-
-  .btn{
-    width:100%;
-    max-width:320px;
-  }
-
-  pre{
-    font-size:13px;
-  }
-
-}
-
-/* SMALL PHONE ADJUSTMENTS */
-@media (max-width: 480px){
-
-  h1{
-    font-size:30px;
-  }
-
-  .subtitle{
-    font-size:15px;
-  }
-
-  .card{
-    padding:22px;
-  }
-
-  ul{
-    padding-left:18px;
-  }
-
-}
  
   <style>
   :root {
@@ -683,6 +625,70 @@
   }
 
   .inline-stat strong { color: #fff; }
+
+   @media print {
+  body { background: white; padding: 0; }
+  .page { box-shadow: none; }
+  .print-note { display: block; }
+}
+
+/* MOBILE RESPONSIVE LAYOUT */
+@media (max-width: 768px){
+
+  body{
+    padding:20px 10px 60px;
+  }
+
+  .cover{
+    padding:40px 24px 32px;
+  }
+
+  .cover h1{
+    font-size:36px;
+  }
+
+  .content{
+    padding:0 24px;
+  }
+
+  .section{
+    margin-top:36px;
+    padding-top:36px;
+  }
+
+  .score-number{
+    font-size:34px;
+  }
+
+}
+
+/* SMALL PHONE ADJUSTMENTS */
+@media (max-width: 480px){
+
+  .cover{
+    padding:32px 18px 26px;
+  }
+
+  .cover h1{
+    font-size:30px;
+  }
+
+  .content{
+    padding:0 18px;
+  }
+
+  .transcript-header{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .transcript-score-mini{
+    text-align:left;
+  }
+
+}
+
+</style> 
 </style>
 </head>
 <body>
