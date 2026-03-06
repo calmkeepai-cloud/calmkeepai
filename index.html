@@ -71,8 +71,23 @@ h1{
   margin:0 auto 30px;
   line-height:1.7;
 }
+
+/* BUTTON STYLE */
 .btn{
-  .report-toggle{
+  cursor:pointer;
+  padding:14px 28px;
+  border-radius:30px;
+  border:none;
+  font-weight:600;
+  font-size:16px;
+  color:#fff;
+  background:linear-gradient(180deg,var(--electric-500),var(--electric-700));
+  box-shadow:0 0 18px rgba(36,164,255,.5),0 8px 30px rgba(0,0,0,.4);
+  margin:10px;
+}
+
+/* REPORT DROPDOWN */
+.report-toggle{
   margin-top:20px;
 }
 
@@ -99,17 +114,7 @@ h1{
   color:#0b1020;
   box-shadow:0 6px 24px rgba(0,0,0,.4);
 }
-  cursor:pointer;
-  padding:14px 28px;
-  border-radius:30px;
-  border:none;
-  font-weight:600;
-  font-size:16px;
-  color:#fff;
-  background:linear-gradient(180deg,var(--electric-500),var(--electric-700));
-  box-shadow:0 0 18px rgba(36,164,255,.5),0 8px 30px rgba(0,0,0,.4);
-  margin:10px;
-}
+
 section{
   max-width:1100px;
   margin:80px auto;
@@ -339,7 +344,8 @@ async function startCheckout() {
     alert("Unable to start checkout. Please try again.");
   }
 }
-  function toggleReports(){
+
+function toggleReports(){
   const panel = document.getElementById("reportPanel");
   panel.classList.toggle("open");
 }
@@ -347,4 +353,3 @@ async function startCheckout() {
 
 </body>
 </html>
-
