@@ -8,6 +8,34 @@
 
  
   <style>
+   /* HOMEPAGE CTA */
+.home-cta{
+  text-align:center;
+  margin-bottom:28px;
+}
+
+.home-cta a{
+  display:inline-block;
+  padding:12px 22px;
+  border-radius:6px;
+  text-decoration:none;
+  font-size:12px;
+  letter-spacing:.08em;
+  font-weight:600;
+
+  background:linear-gradient(90deg,var(--orange),var(--cyan));
+  color:#fff;
+
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 6px 18px rgba(0,0,0,.35);
+
+  transition:all .2s ease;
+}
+
+.home-cta a:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 26px rgba(0,0,0,.45);
+}
   :root {
     --bg:       #0a0c0f;
     --surface:  #0e1117;
@@ -693,6 +721,11 @@
 </head>
 <body>
 <div class="wrap">
+ <div class="home-cta">
+  <a href="https://calmkeep.ai">
+    Try Calmkeep — Start Free 14-Day Trial →
+  </a>
+</div>
 
   <!-- ══════════════════════════════════════════════════════
        HEADER
