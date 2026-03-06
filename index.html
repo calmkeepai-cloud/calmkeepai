@@ -72,6 +72,33 @@ h1{
   line-height:1.7;
 }
 .btn{
+  .report-toggle{
+  margin-top:20px;
+}
+
+.report-panel{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .35s ease;
+  margin-top:12px;
+}
+
+.report-panel.open{
+  max-height:200px;
+}
+
+.report-btn{
+  display:inline-block;
+  margin:10px;
+  padding:12px 24px;
+  border-radius:26px;
+  text-decoration:none;
+  font-weight:600;
+  font-size:15px;
+  background:linear-gradient(180deg,#89f3d1,#5ad4b3);
+  color:#0b1020;
+  box-shadow:0 6px 24px rgba(0,0,0,.4);
+}
   cursor:pointer;
   padding:14px 28px;
   border-radius:30px;
@@ -164,6 +191,26 @@ footer{
   <button class="btn" style="background:linear-gradient(180deg,#89f3d1,#5ad4b3);color:#0b1020;">
     View Documentation
   </button>
+
+  <div class="report-toggle">
+
+<button class="btn" onclick="toggleReports()">
+View Test Reports
+</button>
+
+<div id="reportPanel" class="report-panel">
+
+<a class="report-btn" href="/legaltestreport">
+Legal Test Report
+</a>
+
+<a class="report-btn" href="/codetestreport">
+Code Test Report
+</a>
+
+</div>
+</div>
+  
 </header>
 
 <section class="pricing">
@@ -292,7 +339,12 @@ async function startCheckout() {
     alert("Unable to start checkout. Please try again.");
   }
 }
+  function toggleReports(){
+  const panel = document.getElementById("reportPanel");
+  panel.classList.toggle("open");
+}
 </script>
 
 </body>
 </html>
+
