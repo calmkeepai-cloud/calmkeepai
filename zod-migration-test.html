@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pattern Coherence — The Zod Migration Test</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #0a0c0f;
+    --card:    #12161d;
+    --border:  #1e2430;
+    --text:    #c8d0dc;
+    --muted:   #5a6478;
+    --orange:  #e85d04;
+    --cyan:    #00b4d8;
+    --green:   #3ddc84;
+    --red:     #e63946;
+    --peach:   #f4a261;
+    --dim:     #252d3a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    font-family: 'IBM Plex Mono', monospace;
+    display: flex;
+    justify-content: center;
+    padding: 48px 20px;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,180,216,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,180,216,.025) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 1000px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: .22em;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--orange);
+    border-radius: 50%;
+    animation: blink 2.4s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%,100% { opacity:1; box-shadow:0 0 0 0 rgba(232,93,4,.5); }
+    50%      { opacity:.6; box-shadow:0 0 0 7px rgba(232,93,4,0); }
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -.02em;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 36px;
+  }
+
+  /* ── THE MAIN DIAGRAM ── */
+  .diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Timeline header row */
+  .timeline-header {
+    display: grid;
+    grid-template-columns: 140px repeat(20, 1fr);
+    gap: 0;
+    margin-bottom: 4px;
+    padding-left: 0;
+  }
+
+  .th-spacer { }
+  .th-turn {
+    font-size: 8px;
+    text-align: center;
+    color: var(--muted);
+    letter-spacing: .05em;
+  }
+
+  .th-turn.highlight { color: var(--cyan); }
+
+  /* Phase brackets */
+  .phase-row {
+    display: grid;
+    grid-template-columns: 140px repeat(20, 1fr);
+    gap: 0;
+    margin-bottom: 8px;
+  }
+
+  .phase-spacer {}
+
+  .phase-bracket {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 3px 0;
+    border-radius: 3px;
+    color: var(--muted);
+    position: relative;
+  }
+
+  .phase-bracket.setup {
+    background: rgba(0,180,216,.07);
+    color: var(--cyan);
+    border: 1px solid rgba(0,180,216,.18);
+  }
+  .phase-bracket.audit {
+    background: rgba(232,93,4,.06);
+    color: var(--orange);
+    border: 1px solid rgba(232,93,4,.15);
+  }
+
+  /* Subject rows */
+  .subject-row {
+    display: grid;
+    grid-template-columns: 140px repeat(20, 1fr);
+    gap: 2px;
+    margin-bottom: 3px;
+    align-items: center;
+  }
+
+  .subject-label {
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-right: 10px;
+  }
+  .subject-label .dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Turn cells */
+  .cell {
+    height: 42px;
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: default;
+    border: 1px solid transparent;
+    transition: filter .15s, transform .15s;
+  }
+
+  .cell:hover { filter: brightness(1.25); transform: scaleY(1.05); z-index: 5; }
+
+  .cell-num {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .cell-icon {
+    font-size: 9px;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  /* States */
+  .cell.setup {
+    background: rgba(0,180,216,.09);
+    border-color: rgba(0,180,216,.2);
+  }
+  .cell.setup .cell-num { color: var(--cyan); }
+  .cell.setup .cell-icon { color: rgba(0,180,216,.5); }
+
+  .cell.ok {
+    background: rgba(61,220,132,.09);
+    border-color: rgba(61,220,132,.2);
+  }
+  .cell.ok .cell-num { color: var(--green); }
+  .cell.ok .cell-icon { color: rgba(61,220,132,.5); }
+
+  .cell.warn {
+    background: rgba(244,162,97,.1);
+    border-color: rgba(244,162,97,.25);
+  }
+  .cell.warn .cell-num { color: var(--peach); }
+  .cell.warn .cell-icon { color: rgba(244,162,97,.6); }
+
+  .cell.ave {
+    background: rgba(230,57,70,.14);
+    border-color: rgba(230,57,70,.35);
+    box-shadow: 0 0 8px rgba(230,57,70,.12);
+  }
+  .cell.ave .cell-num { color: #ff4d5a; }
+  .cell.ave .cell-icon { color: rgba(230,57,70,.8); }
+
+  /* PIVOT cell — the Zod migration */
+  .cell.pivot {
+    background: rgba(0,180,216,.15);
+    border: 1.5px solid rgba(0,180,216,.55);
+    box-shadow: 0 0 10px rgba(0,180,216,.15);
+  }
+  .cell.pivot .cell-num { color: #fff; }
+  .cell.pivot .cell-icon { color: var(--cyan); }
+
+  /* ── SEPARATOR ── */
+  .sep-row {
+    display: grid;
+    grid-template-columns: 140px repeat(20, 1fr);
+    gap: 2px;
+    margin: 8px 0;
+    align-items: center;
+  }
+  .sep-label {
+    font-size: 9px;
+    letter-spacing: .1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: right;
+    padding-right: 12px;
+  }
+  .sep-line {
+    height: 1px;
+    background: var(--border);
+    grid-column: 2 / -1;
+  }
+
+  /* ── THE PIVOT ANNOTATION ── */
+  .pivot-annotation {
+    position: relative;
+    margin: 12px 0 24px;
+  }
+
+  /* ── BOTTOM SUMMARY ── */
+  .summary-row {
+    display: grid;
+    grid-template-columns: 140px repeat(20, 1fr);
+    gap: 2px;
+    margin-top: 6px;
+    align-items: center;
+  }
+
+  .sum-label {
+    font-size: 9px;
+    letter-spacing: .08em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: right;
+    padding-right: 12px;
+  }
+
+  .sum-cell {
+    height: 18px;
+    border-radius: 2px;
+  }
+  .sum-cell.ok   { background: rgba(61,220,132,.18); }
+  .sum-cell.ave  { background: rgba(230,57,70,.25); }
+  .sum-cell.warn { background: rgba(244,162,97,.2); }
+  .sum-cell.pivot{ background: rgba(0,180,216,.25); }
+  .sum-cell.setup{ background: rgba(0,180,216,.1); }
+  .sum-cell.none { }
+
+  /* ── KEY INSIGHT BOX ── */
+  .insight {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .insight-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .insight-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+  .insight-card.a::before { background: var(--orange); }
+  .insight-card.b::before { background: var(--cyan); }
+
+  .insight-label {
+    font-size: 9px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .insight-card.a .insight-label { color: var(--orange); }
+  .insight-card.b .insight-label { color: var(--cyan); }
+
+  .insight-headline {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+
+  /* post-pivot breakdown */
+  .post-pivot {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .pp-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+  }
+  .pp-turn {
+    width: 28px;
+    height: 22px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+  .pp-turn.ok  { background: rgba(61,220,132,.12); color: var(--green); }
+  .pp-turn.ave { background: rgba(230,57,70,.16); color: #ff4d5a; }
+
+  .pp-desc { color: var(--muted); line-height: 1.45; }
+  .pp-desc strong { color: var(--text); }
+
+  /* score chips */
+  .score-chips {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 8px 14px;
+  }
+  .chip-num {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+  .chip-label { font-size: 9px; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
+
+  /* legend */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+    padding: 10px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .legend-swatch {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* The critical callout line */
+  .callout-line {
+    width: 100%;
+    margin: 16px 0 8px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .callout-line::before, .callout-line::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border));
+  }
+  .callout-line::after {
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+  .callout-text {
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* arrow */
+  .pivot-arrow {
+    text-align: center;
+    margin: 2px 0 4px;
+    font-size: 11px;
+    color: var(--cyan);
+    letter-spacing: .05em;
+  }
+
+  @media (max-width: 600px) {
+    .insight { grid-template-columns: 1fr; }
+    h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="eyebrow">Critical Diagnostic // The Only Test That Matters</div>
+  <h1>What Happened After the Zod Migration (T14)?</h1>
+  <p class="subtitle">Both models adopted a superior Zod validation middleware at Turn 14. Every turn after that is a test of architectural memory.</p>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:rgba(0,180,216,.15);border:1px solid rgba(0,180,216,.35);"></div>
+      Foundation (T1–5)
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:rgba(0,180,216,.25);border:1.5px solid rgba(0,180,216,.55);"></div>
+      T14 — Zod Migration (Pivot Turn)
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:rgba(61,220,132,.12);border:1px solid rgba(61,220,132,.3);"></div>
+      Clean — Pattern Held
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:rgba(244,162,97,.12);border:1px solid rgba(244,162,97,.3);"></div>
+      Warning — Minor Deviation
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:rgba(230,57,70,.16);border:1px solid rgba(230,57,70,.4);"></div>
+      AVE — Architectural Violation
+    </div>
+  </div>
+
+  <!-- Diagram -->
+  <div class="diagram">
+
+    <!-- Phase brackets -->
+    <div class="timeline-header">
+      <div class="th-spacer"></div>
+      <div class="th-turn">T1</div>
+      <div class="th-turn">T2</div>
+      <div class="th-turn">T3</div>
+      <div class="th-turn">T4</div>
+      <div class="th-turn">T5</div>
+      <div class="th-turn">T6</div>
+      <div class="th-turn">T7</div>
+      <div class="th-turn">T8</div>
+      <div class="th-turn">T9</div>
+      <div class="th-turn">T10</div>
+      <div class="th-turn">T11</div>
+      <div class="th-turn">T12</div>
+      <div class="th-turn">T13</div>
+      <div class="th-turn highlight" style="font-weight:700;">T14</div>
+      <div class="th-turn">T15</div>
+      <div class="th-turn">T16</div>
+      <div class="th-turn">T17</div>
+      <div class="th-turn">T18</div>
+      <div class="th-turn">T19</div>
+      <div class="th-turn">T20</div>
+      <div class="th-turn">T21</div>
+    </div>
+
+    <!-- TRANSCRIPT A ROW -->
+    <div class="subject-row">
+      <div class="subject-label">
+        <div class="dot" style="background:var(--orange);"></div>
+        Transcript A
+      </div>
+      <!-- T1–T5 setup -->
+      <div class="cell setup" title="T1: Project structure"><span class="cell-num">1</span><span class="cell-icon">◆</span></div>
+      <div class="cell setup" title="T2: DB Schema"><span class="cell-num">2</span><span class="cell-icon">◆</span></div>
+      <div class="cell setup" title="T3: Prisma ORM"><span class="cell-num">3</span><span class="cell-icon">◆</span></div>
+      <div class="cell setup" title="T4: Auth Middleware"><span class="cell-num">4</span><span class="cell-icon">◆</span></div>
+      <div class="cell setup" title="T5: Error Classes"><span class="cell-num">5</span><span class="cell-icon">◆</span></div>
+      <!-- T6: OK -->
+      <div class="cell ok" title="T6: Register — manual validator, pre-Zod, consistent with T5"><span class="cell-num">6</span><span class="cell-icon">✓</span></div>
+      <!-- T7: OK -->
+      <div class="cell ok" title="T7: Login — same manual pattern, internally consistent"><span class="cell-num">7</span><span class="cell-icon">✓</span></div>
+      <!-- T8: AVE -->
+      <div class="cell ave" title="T8: Create Org — body-as-Record cast, new module, pattern not propagated"><span class="cell-num">8</span><span class="cell-icon">✕</span></div>
+      <!-- T9: AVE -->
+      <div class="cell ave" title="T9: Add Member — another manual validator, VIEWER role silently omitted"><span class="cell-num">9</span><span class="cell-icon">✕</span></div>
+      <!-- T10: AVE -->
+      <div class="cell ave" title="T10: Task List — raw parseInt pagination in service layer"><span class="cell-num">10</span><span class="cell-icon">✕</span></div>
+      <!-- T11: OK -->
+      <div class="cell ok" title="T11: Pagination — extends T10, internally consistent"><span class="cell-num">11</span><span class="cell-icon">✓</span></div>
+      <!-- T12: AVE -->
+      <div class="cell ave" title="T12: Filtering — duplicates pagination logic, second source of truth"><span class="cell-num">12</span><span class="cell-icon">✕</span></div>
+      <!-- T13: OK -->
+      <div class="cell ok" title="T13: Permissions — requireRole correctly uses hierarchy"><span class="cell-num">13</span><span class="cell-icon">✓</span></div>
+      <!-- T14: PIVOT -->
+      <div class="cell pivot" title="T14 ★ ZOD MIGRATION — introduces validate() middleware, migrates auth+task schemas"><span class="cell-num">14</span><span class="cell-icon">★</span></div>
+      <!-- T15: OK -->
+      <div class="cell ok" title="T15: Org MW — architecture consistent"><span class="cell-num">15</span><span class="cell-icon">✓</span></div>
+      <!-- T16: OK -->
+      <div class="cell ok" title="T16: Audit Logging — service layer only, correct"><span class="cell-num">16</span><span class="cell-icon">✓</span></div>
+      <!-- T17: OK -->
+      <div class="cell ok" title="T17: Soft Deletes — pattern held"><span class="cell-num">17</span><span class="cell-icon">✓</span></div>
+      <!-- T18: AVE — POST PIVOT BACKSLIDE -->
+      <div class="cell ave" title="T18: Comments — raw parseInt AGAIN, ignores Zod MW introduced 4 turns ago"><span class="cell-num">18</span><span class="cell-icon">✕</span></div>
+      <!-- T19: AVE — double violation -->
+      <div class="cell ave" title="T19: Notifications — raw parseInt again + roleHierarchy re-defined in org.service.ts"><span class="cell-num">19</span><span class="cell-icon">✕</span></div>
+      <!-- T20: OK -->
+      <div class="cell ok" title="T20: Rate Limiting — applied correctly"><span class="cell-num">20</span><span class="cell-icon">✓</span></div>
+      <!-- T21: OK -->
+      <div class="cell ok" title="T21: Unit Tests — auth middleware tests, correct"><span class="cell-num">21</span><span class="cell-icon">✓</span></div>
+    </div>
+
+    <!-- Second row of A (T22–T25) -->
+    <!-- We show T22-T25 inline continuation with a spacer trick via a second row -->
+    <!-- Actually let's keep all 25 in one row using scroll, simpler to show the critical part T14-T25 -->
+    <!-- Add T22-T25 as a continuation row -->
+    <div class="subject-row" style="grid-template-columns: 140px repeat(4,1fr) repeat(16,0px);margin-top:-3px;">
+      <div class="subject-label" style="color:var(--muted);font-size:9px;font-weight:400;justify-content:flex-end;padding-right:10px;">cont.</div>
+      <!-- T22 -->
+      <div class="cell ok" style="width:100%;" title="T22: Integration Tests — correct"><span class="cell-num">22</span><span class="cell-icon">✓</span></div>
+      <!-- T23: AVE -->
+      <div class="cell ave" style="width:100%;" title="T23: Comments delete bypasses can() — raw role string check duplicates permissions.ts"><span class="cell-num">23</span><span class="cell-icon">✕</span></div>
+      <!-- T24: AVE -->
+      <div class="cell ave" style="width:100%;" title="T24: Notification list — raw parseInt for third time post-T14"><span class="cell-num">24</span><span class="cell-icon">✕</span></div>
+      <!-- T25: OK -->
+      <div class="cell ok" style="width:100%;" title="T25: Architecture review — self-identifies 9 violations"><span class="cell-num">25</span><span class="cell-icon">✓</span></div>
+    </div>
+
+
+    <!-- Separator -->
+    <div style="height:12px;"></div>
+
+    <!-- TRANSCRIPT B ROW -->
+    <div class="subject-row">
+      <div class="subject-label">
+        <div class="dot" style="background:var(--cyan);"></div>
+        Transcript B
+      </div>
+      <!-- T1–T5 setup -->
+      <div class="cell setup" title="T1: Project structure — Zod already in package.json"><span class="cell-num">1</span><span class="cell-icon">◆</span></div>
+      <div class="cell setup" title="T2: DB Schema — org scoping documented explicitly"><span class="cell-num">2</span><span class="cell-icon">◆</span></div>
+      <div class="cell setup" title="T3: Prisma Schema"><span class="cell-num">3</span><span class="cell-icon">◆</span></div>
+      <div class="cell setup" title="T4: Auth Middleware — AppError hierarchy"><span class="cell-num">4</span><span class="cell-icon">◆</span></div>
+      <div class="cell setup" title="T5: Full HttpErrors subclass hierarchy defined"><span class="cell-num">5</span><span class="cell-icon">◆</span></div>
+      <!-- T6–T13: ALL CLEAN -->
+      <div class="cell ok" title="T6: Register — Zod schema from start"><span class="cell-num">6</span><span class="cell-icon">✓</span></div>
+      <div class="cell ok" title="T7: Login — UnauthorizedError (correct class)"><span class="cell-num">7</span><span class="cell-icon">✓</span></div>
+      <div class="cell ok" title="T8: Create Org — validate(schema) on route"><span class="cell-num">8</span><span class="cell-icon">✓</span></div>
+      <div class="cell ok" title="T9: Add Member — validate(addMemberSchema), ForbiddenError"><span class="cell-num">9</span><span class="cell-icon">✓</span></div>
+      <div class="cell ok" title="T10: Task CRUD — Zod coerce.number() for pagination"><span class="cell-num">10</span><span class="cell-icon">✓</span></div>
+      <div class="cell ok" title="T11: Pagination — extends existing Zod schema, no duplication"><span class="cell-num">11</span><span class="cell-icon">✓</span></div>
+      <div class="cell ok" title="T12: Filtering — extends listTasksQuerySchema only"><span class="cell-num">12</span><span class="cell-icon">✓</span></div>
+      <div class="cell ok" title="T13: Permissions — single roleHierarchy, no duplication"><span class="cell-num">13</span><span class="cell-icon">✓</span></div>
+      <!-- T14: PIVOT -->
+      <div class="cell pivot" title="T14 ★ ZOD MIDDLEWARE — formalizes into reusable validate() MW. Identical to A's pivot."><span class="cell-num">14</span><span class="cell-icon">★</span></div>
+      <!-- T15–T22: ALL CLEAN -->
+      <div class="cell ok" title="T15: Org MW — consistent"><span class="cell-num">15</span><span class="cell-icon">✓</span></div>
+      <div class="cell ok" title="T16: Audit Logging — fire-and-forget .catch(), service layer only"><span class="cell-num">16</span><span class="cell-icon">✓</span></div>
+      <div class="cell ok" title="T17: Soft Deletes — TASK_SELECT constant consistent"><span class="cell-num">17</span><span class="cell-icon">✓</span></div>
+      <div class="cell ok" title="T18: Comments — validate middleware on routes ✓ Zod schema ✓"><span class="cell-num">18</span><span class="cell-icon">✓</span></div>
+      <div class="cell ok" title="T19: Notifications — validate middleware ✓ Zod pagination schema ✓"><span class="cell-num">19</span><span class="cell-icon">✓</span></div>
+      <div class="cell ok" title="T20: Rate Limiting — correct"><span class="cell-num">20</span><span class="cell-icon">✓</span></div>
+      <div class="cell ok" title="T21: Unit Tests — correct"><span class="cell-num">21</span><span class="cell-icon">✓</span></div>
+    </div>
+
+    <!-- B cont T22–T25 -->
+    <div class="subject-row" style="grid-template-columns: 140px repeat(4,1fr) repeat(16,0px);margin-top:-3px;">
+      <div class="subject-label" style="color:var(--muted);font-size:9px;font-weight:400;justify-content:flex-end;padding-right:10px;">cont.</div>
+      <div class="cell ok" style="width:100%;" title="T22: Integration Tests — correct"><span class="cell-num">22</span><span class="cell-icon">✓</span></div>
+      <!-- T23: AVE (ConflictError wrong class) -->
+      <div class="cell ave" style="width:100%;" title="T23: ConflictError for invalid credentials — should be UnauthorizedError"><span class="cell-num">23</span><span class="cell-icon">✕</span></div>
+      <!-- T24: WARN (package mismatch) -->
+      <div class="cell warn" style="width:100%;" title="T24: js-yaml imported but yaml installed — minor package mismatch"><span class="cell-num">24</span><span class="cell-icon">!</span></div>
+      <!-- T25: OK -->
+      <div class="cell ok" style="width:100%;" title="T25: Thorough self-review, catches all violations"><span class="cell-num">25</span><span class="cell-icon">✓</span></div>
+    </div>
+
+  </div><!-- /diagram -->
+
+  <!-- The critical comparison -->
+  <div style="margin-top:28px;">
+    <div class="callout-line"><span class="callout-text">The Decisive Evidence — Post-T14 Pattern Compliance</span></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--border);border-radius:6px;overflow:hidden;">
+
+      <!-- A panel -->
+      <div style="background:var(--card);padding:22px 24px;">
+        <div style="font-size:9px;letter-spacing:.15em;color:var(--orange);text-transform:uppercase;margin-bottom:10px;">Transcript A — What happened after T14</div>
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:14px;line-height:1.2;">Adopted Zod.<br>Then immediately abandoned it.</div>
+        <div class="post-pivot">
+          <div class="pp-row">
+            <div class="pp-turn ok">15</div>
+            <div class="pp-desc">✓ Clean turn</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">16</div>
+            <div class="pp-desc">✓ Clean turn</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">17</div>
+            <div class="pp-desc">✓ Clean turn</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ave">18</div>
+            <div class="pp-desc"><strong>Comments:</strong> raw <code style="font-size:9px;background:rgba(230,57,70,.12);color:#ff6b74;padding:1px 4px;border-radius:2px;">parseInt</code> — Zod MW ignored</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ave">19</div>
+            <div class="pp-desc"><strong>Notifications:</strong> raw <code style="font-size:9px;background:rgba(230,57,70,.12);color:#ff6b74;padding:1px 4px;border-radius:2px;">parseInt</code> + roleHierarchy dupe</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">20</div>
+            <div class="pp-desc">✓ Clean turn</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">21</div>
+            <div class="pp-desc">✓ Clean turn</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">22</div>
+            <div class="pp-desc">✓ Clean turn</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ave">23</div>
+            <div class="pp-desc"><strong>Comments delete:</strong> raw role string check bypasses <code style="font-size:9px;background:rgba(230,57,70,.12);color:#ff6b74;padding:1px 4px;border-radius:2px;">can()</code></div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ave">24</div>
+            <div class="pp-desc"><strong>Notifications list:</strong> raw <code style="font-size:9px;background:rgba(230,57,70,.12);color:#ff6b74;padding:1px 4px;border-radius:2px;">parseInt</code> — third time</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">25</div>
+            <div class="pp-desc">✓ Self-review — retrospectively identifies all issues</div>
+          </div>
+        </div>
+        <div class="score-chips" style="margin-top:18px;">
+          <div class="chip">
+            <div class="chip-num" style="color:var(--red);">4</div>
+            <div class="chip-label">AVEs post-T14</div>
+          </div>
+          <div class="chip">
+            <div class="chip-num" style="color:var(--red);">36%</div>
+            <div class="chip-label">Post-pivot violation rate</div>
+          </div>
+          <div class="chip">
+            <div class="chip-num" style="color:var(--peach);">T18</div>
+            <div class="chip-label">First backslide</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- B panel -->
+      <div style="background:var(--card);padding:22px 24px;border-left:1px solid var(--border);">
+        <div style="font-size:9px;letter-spacing:.15em;color:var(--cyan);text-transform:uppercase;margin-bottom:10px;">Transcript B — What happened after T14</div>
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:14px;line-height:1.2;">Adopted Zod.<br>Applied it to every subsequent module.</div>
+        <div class="post-pivot">
+          <div class="pp-row">
+            <div class="pp-turn ok">15</div>
+            <div class="pp-desc">✓ Org MW — consistent</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">16</div>
+            <div class="pp-desc">✓ Audit — service layer only</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">17</div>
+            <div class="pp-desc">✓ Soft deletes — TASK_SELECT constant held</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">18</div>
+            <div class="pp-desc"><strong>Comments:</strong> <code style="font-size:9px;background:rgba(61,220,132,.1);color:#3ddc84;padding:1px 4px;border-radius:2px;">validate(listCommentsSchema, "query")</code> ✓</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">19</div>
+            <div class="pp-desc"><strong>Notifications:</strong> <code style="font-size:9px;background:rgba(61,220,132,.1);color:#3ddc84;padding:1px 4px;border-radius:2px;">validate(listNotifSchema, "query")</code> ✓</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">20</div>
+            <div class="pp-desc">✓ Rate limiting — applied correctly</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">21</div>
+            <div class="pp-desc">✓ Unit tests — correct patterns</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">22</div>
+            <div class="pp-desc">✓ Integration tests — correct</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ave">23</div>
+            <div class="pp-desc"><strong>Login:</strong> <code style="font-size:9px;background:rgba(230,57,70,.12);color:#ff6b74;padding:1px 4px;border-radius:2px;">ConflictError</code> instead of <code style="font-size:9px;background:rgba(230,57,70,.12);color:#ff6b74;padding:1px 4px;border-radius:2px;">UnauthorizedError</code></div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok" style="background:rgba(244,162,97,.12);color:var(--peach);">24</div>
+            <div class="pp-desc"><strong>Swagger:</strong> js-yaml / yaml package mismatch (minor)</div>
+          </div>
+          <div class="pp-row">
+            <div class="pp-turn ok">25</div>
+            <div class="pp-desc">✓ Self-review — thorough, fixes all 3 violations precisely</div>
+          </div>
+        </div>
+        <div class="score-chips" style="margin-top:18px;">
+          <div class="chip">
+            <div class="chip-num" style="color:var(--green);">1</div>
+            <div class="chip-label">AVEs post-T14</div>
+          </div>
+          <div class="chip">
+            <div class="chip-num" style="color:var(--green);">9%</div>
+            <div class="chip-label">Post-pivot violation rate</div>
+          </div>
+          <div class="chip">
+            <div class="chip-num" style="color:var(--green);">T23</div>
+            <div class="chip-label">First backslide</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom verdict strip -->
+  <div style="margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>
+      <div style="font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:5px;">Conclusion</div>
+      <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;">Same migration. Opposite outcomes. The difference is not capability — it's context coherence over 25 turns.</div>
+    </div>
+    <div style="display:flex;gap:24px;flex-shrink:0;">
+      <div style="text-align:center;">
+        <div style="font-size:28px;font-weight:700;color:var(--red);line-height:1;">36%</div>
+        <div style="font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:3px;">A — post-T14<br>violation rate</div>
+      </div>
+      <div style="width:1px;background:var(--border);"></div>
+      <div style="text-align:center;">
+        <div style="font-size:28px;font-weight:700;color:var(--green);line-height:1;">9%</div>
+        <div style="font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:3px;">B — post-T14<br>violation rate</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div style="
+text-align:center;
+font-size:10px;
+color:#5a6478;
+margin-top:30px;
+margin-bottom:10px;
+letter-spacing:.15em;">
+SUPPLEMENTARY DIAGNOSTICS
+</div>
+<div style="
+  margin-top:40px;
+  display:flex;
+  justify-content:center;
+  gap:14px;
+  flex-wrap:wrap;
+  padding-top:20px;
+  border-top:1px solid #1e2430;
+">
+
+  <a href="codetestreport.html"
+     style="
+     padding:10px 16px;
+     background:#12161d;
+     border:1px solid #1e2430;
+     border-radius:6px;
+     color:#ffffff;
+     text-decoration:none;
+     font-size:12px;
+     letter-spacing:.05em;">
+     ← Back to Main Audit
+  </a>
+
+  <a href="response-contract-analysis.html"
+     style="
+     padding:10px 16px;
+     background:#12161d;
+     border:1px solid #1e2430;
+     border-radius:6px;
+     color:#ffffff;
+     text-decoration:none;
+     font-size:12px;
+     letter-spacing:.05em;">
+     View Response Contract Analysis →
+  </a>
+
+</div>
+</body>
+</html>
