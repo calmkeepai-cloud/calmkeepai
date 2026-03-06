@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Response Contract Fragmentation Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:     #0a0c0f;
+    --card:   #12161d;
+    --card2:  #0e1117;
+    --border: #1e2430;
+    --text:   #c8d0dc;
+    --muted:  #5a6478;
+    --dim:    #252d3a;
+    --orange: #e85d04;
+    --cyan:   #00b4d8;
+    --green:  #3ddc84;
+    --red:    #e63946;
+    --peach:  #f4a261;
+    --purple: #9b72cf;
+    --yellow: #f7c948;
+    --teal:   #2ec4b6;
+    --pink:   #e96c9a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'IBM Plex Mono', monospace;
+    display: flex;
+    justify-content: center;
+    padding: 48px 20px 64px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,180,216,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,180,216,.025) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+  }
+
+  .wrap {
+    max-width: 1000px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: .22em;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--orange);
+    border-radius: 50%;
+    animation: blink 2.4s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%,100% { opacity:1; box-shadow:0 0 0 0 rgba(232,93,4,.5); }
+    50%      { opacity:.6; box-shadow:0 0 0 7px rgba(232,93,4,0); }
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -.02em;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 36px;
+    line-height: 1.6;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    background: var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 3px;
+  }
+
+  .panel {
+    background: var(--card);
+    padding: 0;
+  }
+
+  .panel-head {
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-head.a { background: rgba(232,93,4,.05); }
+  .panel-head.b { background: rgba(0,180,216,.05); }
+
+  .panel-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .panel-name.a { color: var(--orange); }
+  .panel-name.b { color: var(--cyan); }
+
+  .shape-count {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .shape-count.a { color: var(--red); }
+  .shape-count.b { color: var(--green); }
+
+  .shape-count-label {
+    font-size: 9px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+    text-align: right;
+  }
+
+  /* ── ENDPOINT ROWS ── */
+  .endpoint-list {
+    padding: 12px 14px;
+  }
+
+  .ep-row {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 6px;
+    min-height: 44px;
+  }
+
+  .ep-meta {
+    width: 80px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-top: 3px;
+  }
+
+  .ep-turn {
+    font-size: 9px;
+    letter-spacing: .08em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .ep-method {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .05em;
+  }
+  .ep-method.post { color: #4ade80; }
+  .ep-method.get  { color: #60a5fa; }
+  .ep-method.patch { color: #f59e0b; }
+  .ep-method.delete { color: #f87171; }
+
+  .ep-path {
+    font-size: 9px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* The JSON blob */
+  .ep-shape {
+    flex: 1;
+    border-radius: 4px;
+    padding: 7px 10px;
+    border: 1px solid;
+    font-size: 10px;
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ep-shape .shape-label {
+    position: absolute;
+    top: -7px;
+    right: 8px;
+    font-size: 8px;
+    letter-spacing: .1em;
+    padding: 1px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* SHAPE COLORS for A (each distinct) */
+  .shape-s1 { background: rgba(155,114,207,.08); border-color: rgba(155,114,207,.3); }
+  .shape-s1 .shape-label { background: rgba(155,114,207,.2); color: var(--purple); }
+  .shape-s1 .key { color: var(--purple); }
+
+  .shape-s2 { background: rgba(230,57,70,.08); border-color: rgba(230,57,70,.3); }
+  .shape-s2 .shape-label { background: rgba(230,57,70,.18); color: #ff6b74; }
+  .shape-s2 .key { color: #ff6b74; }
+
+  .shape-s3 { background: rgba(247,201,72,.08); border-color: rgba(247,201,72,.28); }
+  .shape-s3 .shape-label { background: rgba(247,201,72,.18); color: var(--yellow); }
+  .shape-s3 .key { color: var(--yellow); }
+
+  .shape-s4 { background: rgba(46,196,182,.08); border-color: rgba(46,196,182,.28); }
+  .shape-s4 .shape-label { background: rgba(46,196,182,.18); color: var(--teal); }
+  .shape-s4 .key { color: var(--teal); }
+
+  .shape-s5 { background: rgba(244,162,97,.08); border-color: rgba(244,162,97,.28); }
+  .shape-s5 .shape-label { background: rgba(244,162,97,.18); color: var(--peach); }
+  .shape-s5 .key { color: var(--peach); }
+
+  .shape-s6 { background: rgba(233,108,154,.08); border-color: rgba(233,108,154,.28); }
+  .shape-s6 .shape-label { background: rgba(233,108,154,.18); color: var(--pink); }
+  .shape-s6 .key { color: var(--pink); }
+
+  .shape-s7 { background: rgba(0,180,216,.07); border-color: rgba(0,180,216,.22); }
+  .shape-s7 .shape-label { background: rgba(0,180,216,.18); color: var(--cyan); }
+  .shape-s7 .key { color: var(--cyan); }
+
+  /* SHAPE COLOR for B (single consistent shape) */
+  .shape-b1 { background: rgba(61,220,132,.07); border-color: rgba(61,220,132,.28); }
+  .shape-b1 .shape-label { background: rgba(61,220,132,.18); color: var(--green); }
+  .shape-b1 .key { color: var(--green); }
+
+  /* Error shape in B */
+  .shape-berr { background: rgba(230,57,70,.06); border-color: rgba(230,57,70,.2); }
+  .shape-berr .shape-label { background: rgba(230,57,70,.15); color: #ff8089; }
+  .shape-berr .key { color: #ff8089; }
+
+  .key { font-size: 10px; line-height: 1.5; }
+  .val { color: var(--muted); font-size: 10px; }
+  .brace { color: var(--dim); font-size: 10px; }
+
+  /* ── SECTION DIVIDERS ── */
+  .ep-section-label {
+    font-size: 9px;
+    letter-spacing: .12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    padding: 6px 14px 4px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+  }
+
+  /* ── THE BOTTOM CHAOS VISUAL ── */
+  .chaos-wrap {
+    margin-top: 3px;
+    background: var(--card);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .chaos-head {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .chaos-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .chaos-subtitle {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .chaos-body {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* API consumer pain visualization */
+  .consumer-panel { }
+  .consumer-label {
+    font-size: 10px;
+    letter-spacing: .12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .consumer-label.a { color: var(--orange); }
+  .consumer-label.b { color: var(--cyan); }
+
+  /* The "what does an API consumer have to write" code block */
+  .code-block {
+    background: #080a0d;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    font-size: 10.5px;
+    line-height: 1.7;
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  .c-comment { color: var(--muted); font-style: italic; }
+  .c-key   { color: #60a5fa; }
+  .c-str   { color: #86efac; }
+  .c-op    { color: var(--orange); }
+  .c-fn    { color: #e879f9; }
+  .c-type  { color: var(--cyan); }
+  .c-red   { color: var(--red); }
+  .c-err   { color: #ff6b74; }
+  .c-green { color: var(--green); }
+
+  /* ── VERDICT STRIP ── */
+  .verdict-strip {
+    margin-top: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .verdict-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.4;
+    flex: 1;
+    min-width: 280px;
+  }
+
+  .verdict-note {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 400;
+  }
+
+  .num-pair {
+    display: flex;
+    gap: 24px;
+    flex-shrink: 0;
+  }
+
+  .num-block {
+    text-align: center;
+  }
+
+  .num-big {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .num-label {
+    font-size: 9px;
+    letter-spacing: .1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .divider-v {
+    width: 1px;
+    background: var(--border);
+    align-self: stretch;
+  }
+
+  @media (max-width: 640px) {
+    .split { grid-template-columns: 1fr; }
+    .chaos-body { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="eyebrow">Critical Diagnostic #2 // API Response Contract</div>
+  <h1>How Many JSON Shapes Does the API Return?</h1>
+  <p class="subtitle">
+    A consistent API returns the same envelope structure from every endpoint — one shape for success, one for errors.<br>
+    Count the distinct response structures produced by each model across 25 turns.
+  </p>
+
+  <!-- Main split panel -->
+  <div class="split">
+
+    <!-- ══ TRANSCRIPT A ══ -->
+    <div class="panel">
+      <div class="panel-head a">
+        <div>
+          <div class="panel-name a">Transcript A</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;">No envelope contract established</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="shape-count a">7</div>
+          <div class="shape-count-label">distinct shapes</div>
+        </div>
+      </div>
+
+      <div class="endpoint-list">
+
+        <!-- Error shapes -->
+        <div class="ep-section-label">Error Responses — 2 competing shapes</div>
+
+        <div class="ep-row">
+          <div class="ep-meta">
+            <span class="ep-turn">T4</span>
+            <span class="ep-method">Middleware</span>
+            <span class="ep-path">auth.ts / tenant.ts</span>
+          </div>
+          <div class="ep-shape shape-s2">
+            <span class="shape-label">Shape 1</span>
+            <span class="brace">{</span>
+            <span class="key">&nbsp;&nbsp;"error"<span class="val">: </span><span style="color:#86efac;">"Missing or invalid authorization header"</span></span>
+            <span class="brace">}</span>
+          </div>
+        </div>
+
+        <div class="ep-row">
+          <div class="ep-meta">
+            <span class="ep-turn">T5</span>
+            <span class="ep-method">errorHandler</span>
+            <span class="ep-path">all thrown errors</span>
+          </div>
+          <div class="ep-shape shape-s1">
+            <span class="shape-label">Shape 2</span>
+            <span class="brace">{</span>
+            <span class="key">&nbsp;&nbsp;"error"<span class="val">: {</span></span>
+            <span class="key">&nbsp;&nbsp;&nbsp;&nbsp;"code"<span class="val">: </span><span style="color:#86efac;">"NOT_FOUND"</span><span class="val">,</span></span>
+            <span class="key">&nbsp;&nbsp;&nbsp;&nbsp;"message"<span class="val">: </span><span style="color:#86efac;">"Task not found"</span><span class="val">,</span></span>
+            <span class="key">&nbsp;&nbsp;&nbsp;&nbsp;"requestId"<span class="val">: </span><span style="color:#86efac;">"abc-123"</span><span class="val">,</span></span>
+            <span class="key">&nbsp;&nbsp;&nbsp;&nbsp;"timestamp"<span class="val">: </span><span style="color:#86efac;">"2024-..."</span></span>
+            <span class="brace">&nbsp;&nbsp;} }</span>
+          </div>
+        </div>
+
+        <!-- Success shapes -->
+        <div class="ep-section-label" style="margin-top:8px;">Success Responses — 5 competing shapes</div>
+
+        <div class="ep-row">
+          <div class="ep-meta">
+            <span class="ep-turn">T6 / T7</span>
+            <span class="ep-method post">POST</span>
+            <span class="ep-path">/auth/register</span>
+          </div>
+          <div class="ep-shape shape-s3">
+            <span class="shape-label">Shape 3</span>
+            <span class="brace">{</span>
+            <span class="key">&nbsp;&nbsp;"user"<span class="val">: { id, email, createdAt },</span></span>
+            <span class="key">&nbsp;&nbsp;"token"<span class="val">: </span><span style="color:#86efac;">"eyJ..."</span></span>
+            <span class="brace">}</span>
+          </div>
+        </div>
+
+        <div class="ep-row">
+          <div class="ep-meta">
+            <span class="ep-turn">T8</span>
+            <span class="ep-method post">POST</span>
+            <span class="ep-path">/orgs</span>
+          </div>
+          <div class="ep-shape shape-s4">
+            <span class="shape-label">Shape 4</span>
+            <span class="brace">{</span>
+            <span class="key">&nbsp;&nbsp;"org"<span class="val">: { id, name, slug, createdAt }</span></span>
+            <span class="brace">}</span>
+          </div>
+        </div>
+
+        <div class="ep-row">
+          <div class="ep-meta">
+            <span class="ep-turn">T9</span>
+            <span class="ep-method post">POST</span>
+            <span class="ep-path">/orgs/:id/members</span>
+          </div>
+          <div class="ep-shape shape-s5">
+            <span class="shape-label">Shape 5</span>
+            <span class="brace">{</span>
+            <span class="key">&nbsp;&nbsp;"membership"<span class="val">: { role, joinedAt, user }</span></span>
+            <span class="brace">}</span>
+          </div>
+        </div>
+
+        <div class="ep-row">
+          <div class="ep-meta">
+            <span class="ep-turn">T10</span>
+            <span class="ep-method post">POST</span>
+            <span class="ep-path">/orgs/:id/tasks</span>
+          </div>
+          <div class="ep-shape shape-s6">
+            <span class="shape-label">Shape 6</span>
+            <span class="brace">{</span>
+            <span class="key">&nbsp;&nbsp;"task"<span class="val">: { id, title, status, ... }</span></span>
+            <span class="brace">}</span>
+          </div>
+        </div>
+
+        <div class="ep-row">
+          <div class="ep-meta">
+            <span class="ep-turn">T10–T11</span>
+            <span class="ep-method get">GET</span>
+            <span class="ep-path">/orgs/:id/tasks</span>
+          </div>
+          <div class="ep-shape shape-s7">
+            <span class="shape-label">Shape 7</span>
+            <span class="brace">res.json(result) &nbsp;<span class="val">// raw object:</span></span>
+            <span class="key">&nbsp;<span class="val">{ tasks: [...], total, page, limit }</span></span>
+            <span style="font-size:9px;color:var(--muted);">&nbsp;// no wrapper key — direct spread</span>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div style="margin-top:12px;padding:10px 12px;background:rgba(230,57,70,.07);border:1px solid rgba(230,57,70,.2);border-radius:4px;">
+          <div style="font-size:10px;color:#ff6b74;font-weight:600;margin-bottom:6px;letter-spacing:.05em;">API consumer receives different keys every call</div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.6;">
+            To extract data, client must know: is it <code style="font-size:9px;background:rgba(155,114,207,.15);color:var(--purple);padding:1px 4px;border-radius:2px;">res.user</code>, <code style="font-size:9px;background:rgba(46,196,182,.15);color:var(--teal);padding:1px 4px;border-radius:2px;">res.org</code>, <code style="font-size:9px;background:rgba(244,162,97,.15);color:var(--peach);padding:1px 4px;border-radius:2px;">res.membership</code>, <code style="font-size:9px;background:rgba(233,108,154,.15);color:var(--pink);padding:1px 4px;border-radius:2px;">res.task</code>, or <code style="font-size:9px;background:rgba(0,180,216,.15);color:var(--cyan);padding:1px 4px;border-radius:2px;">res.tasks</code>? No generic handler possible.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ TRANSCRIPT B ══ -->
+    <div class="panel" style="border-left:1px solid var(--border);">
+      <div class="panel-head b">
+        <div>
+          <div class="panel-name b">Transcript B</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;">{ status, data } established at T1 — never broken</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="shape-count b">2</div>
+          <div class="shape-count-label">distinct shapes</div>
+        </div>
+      </div>
+
+      <div class="endpoint-list">
+
+        <div class="ep-section-label">Error Responses — 1 shape, always</div>
+
+        <div class="ep-row">
+          <div class="ep-meta">
+            <span class="ep-turn">T5 → T25</span>
+            <span class="ep-method">errorHandler</span>
+            <span class="ep-path">all errors</span>
+          </div>
+          <div class="ep-shape shape-berr">
+            <span class="shape-label">Shape ERR</span>
+            <span class="brace">{</span>
+            <span class="key">&nbsp;&nbsp;"status"<span class="val">: </span><span style="color:#86efac;">"error"</span><span class="val">,</span></span>
+            <span class="key">&nbsp;&nbsp;"message"<span class="val">: </span><span style="color:#86efac;">"..."</span><span class="val">,</span></span>
+            <span class="key">&nbsp;&nbsp;"code"<span class="val">: </span><span style="color:#86efac;">"NOT_FOUND"</span></span>
+            <span class="brace">}</span>
+          </div>
+        </div>
+
+        <div class="ep-section-label" style="margin-top:8px;">Success Responses — 1 shape, every endpoint, every turn</div>
+
+        <div class="ep-row">
+          <div class="ep-meta">
+            <span class="ep-turn">T6</span>
+            <span class="ep-method post">POST</span>
+            <span class="ep-path">/auth/register</span>
+          </div>
+          <div class="ep-shape shape-b1">
+            <span class="shape-label">Shape OK ✓</span>
+            <span class="brace">{</span>
+            <span class="key">&nbsp;&nbsp;"status"<span class="val">: </span><span style="color:#86efac;">"success"</span><span class="val">,</span></span>
+            <span class="key">&nbsp;&nbsp;"data"<span class="val">: { user, token }</span></span>
+            <span class="brace">}</span>
+          </div>
+        </div>
+
+        <div class="ep-row">
+          <div class="ep-meta">
+            <span class="ep-turn">T8</span>
+            <span class="ep-method post">POST</span>
+            <span class="ep-path">/organizations</span>
+          </div>
+          <div class="ep-shape shape-b1">
+            <span class="shape-label">Shape OK ✓</span>
+            <span class="brace">{</span>
+            <span class="key">&nbsp;&nbsp;"status"<span class="val">: </span><span style="color:#86efac;">"success"</span><span class="val">,</span></span>
+            <span class="key">&nbsp;&nbsp;"data"<span class="val">: { organization }</span></span>
+            <span class="brace">}</span>
+          </div>
+        </div>
+
+        <div class="ep-row">
+          <div class="ep-meta">
+            <span class="ep-turn">T10</span>
+            <span class="ep-method get">GET</span>
+            <span class="ep-path">/…/tasks</span>
+          </div>
+          <div class="ep-shape shape-b1">
+            <span class="shape-label">Shape OK ✓</span>
+            <span class="brace">{</span>
+            <span class="key">&nbsp;&nbsp;"status"<span class="val">: </span><span style="color:#86efac;">"success"</span><span class="val">,</span></span>
+            <span class="key">&nbsp;&nbsp;"data"<span class="val">: { tasks, pagination }</span></span>
+            <span class="brace">}</span>
+          </div>
+        </div>
+
+        <div class="ep-row">
+          <div class="ep-meta">
+            <span class="ep-turn">T18</span>
+            <span class="ep-method post">POST</span>
+            <span class="ep-path">/…/comments</span>
+          </div>
+          <div class="ep-shape shape-b1">
+            <span class="shape-label">Shape OK ✓</span>
+            <span class="brace">{</span>
+            <span class="key">&nbsp;&nbsp;"status"<span class="val">: </span><span style="color:#86efac;">"success"</span><span class="val">,</span></span>
+            <span class="key">&nbsp;&nbsp;"data"<span class="val">: { comment }</span></span>
+            <span class="brace">}</span>
+          </div>
+        </div>
+
+        <div class="ep-row">
+          <div class="ep-meta">
+            <span class="ep-turn">T19</span>
+            <span class="ep-method get">GET</span>
+            <span class="ep-path">/notifications</span>
+          </div>
+          <div class="ep-shape shape-b1">
+            <span class="shape-label">Shape OK ✓</span>
+            <span class="brace">{</span>
+            <span class="key">&nbsp;&nbsp;"status"<span class="val">: </span><span style="color:#86efac;">"success"</span><span class="val">,</span></span>
+            <span class="key">&nbsp;&nbsp;"data"<span class="val">: { notifications, pagination }</span></span>
+            <span class="brace">}</span>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div style="margin-top:12px;padding:10px 12px;background:rgba(61,220,132,.07);border:1px solid rgba(61,220,132,.22);border-radius:4px;">
+          <div style="font-size:10px;color:var(--green);font-weight:600;margin-bottom:6px;letter-spacing:.05em;">API consumer writes one handler for everything</div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.6;">
+            Every response: check <code style="font-size:9px;background:rgba(61,220,132,.12);color:var(--green);padding:1px 4px;border-radius:2px;">res.status</code>, read <code style="font-size:9px;background:rgba(61,220,132,.12);color:var(--green);padding:1px 4px;border-radius:2px;">res.data</code>. Works for auth, tasks, comments, notifications — no special-casing needed.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /split -->
+
+
+  <!-- ══ THE CLIENT CODE CONSEQUENCE ══ -->
+  <div class="chaos-wrap">
+    <div class="chaos-head">
+      <div>
+        <div class="chaos-title">The Real-World Consequence — What the API Consumer Writes</div>
+        <div class="chaos-subtitle">Frontend/client code required to consume each API. This is the downstream cost of architectural drift.</div>
+      </div>
+    </div>
+    <div class="chaos-body">
+
+      <!-- A: chaotic client code -->
+      <div class="consumer-panel">
+        <div class="consumer-label a">Transcript A — Client must special-case every endpoint</div>
+        <div class="code-block">
+<span class="c-comment">// Every endpoint returns a different key.</span>
+<span class="c-comment">// Consumer must know the shape in advance.</span>
+&nbsp;
+<span class="c-fn">async function</span> <span class="c-key">apiCall</span>(endpoint, method, body) {
+&nbsp;&nbsp;<span class="c-fn">const</span> res = <span class="c-fn">await</span> fetch(endpoint, { method, body });
+&nbsp;&nbsp;<span class="c-fn">const</span> json = <span class="c-fn">await</span> res.json();
+&nbsp;
+&nbsp;&nbsp;<span class="c-comment">// ❌ Which error shape did we get?</span>
+&nbsp;&nbsp;<span class="c-op">if</span> (!res.ok) {
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-op">if</span> (<span class="c-type">typeof</span> json.error === <span class="c-str">'string'</span>) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-err">throw new Error</span>(json.error); <span class="c-comment">// T4 shape</span>
+&nbsp;&nbsp;&nbsp;&nbsp;} <span class="c-op">else</span> {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-err">throw new Error</span>(json.error.message); <span class="c-comment">// T5 shape</span>
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;}
+&nbsp;
+&nbsp;&nbsp;<span class="c-comment">// ❌ Which success key holds the data?</span>
+&nbsp;&nbsp;<span class="c-op">return</span> json.user    <span class="c-comment">// auth</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?? json.org        <span class="c-comment">// org create</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?? json.membership  <span class="c-comment">// add member</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?? json.task        <span class="c-comment">// task endpoints</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?? json.tasks       <span class="c-comment">// task list</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?? json.comment     <span class="c-comment">// comments</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?? json;            <span class="c-comment">// raw fallback (T10–T11)</span>
+}
+        </div>
+      </div>
+
+      <!-- B: clean client code -->
+      <div class="consumer-panel">
+        <div class="consumer-label b">Transcript B — One handler for every endpoint, forever</div>
+        <div class="code-block">
+<span class="c-comment">// Every endpoint: { status, data } or { status, message }</span>
+<span class="c-comment">// One handler. Works for everything. Always.</span>
+&nbsp;
+<span class="c-fn">async function</span> <span class="c-key">apiCall</span>(endpoint, method, body) {
+&nbsp;&nbsp;<span class="c-fn">const</span> res = <span class="c-fn">await</span> fetch(endpoint, { method, body });
+&nbsp;&nbsp;<span class="c-fn">const</span> json = <span class="c-fn">await</span> res.json();
+&nbsp;
+&nbsp;&nbsp;<span class="c-comment">// ✓ One error shape. Always.</span>
+&nbsp;&nbsp;<span class="c-op">if</span> (json.status === <span class="c-str">'error'</span>) {
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-err">throw new Error</span>(json.message);
+&nbsp;&nbsp;}
+&nbsp;
+&nbsp;&nbsp;<span class="c-comment">// ✓ One data key. Always.</span>
+&nbsp;&nbsp;<span class="c-op">return</span> json.data;
+&nbsp;&nbsp;<span class="c-comment">// auth → { user, token }</span>
+&nbsp;&nbsp;<span class="c-comment">// tasks → { tasks, pagination }</span>
+&nbsp;&nbsp;<span class="c-comment">// comments → { comment }</span>
+&nbsp;&nbsp;<span class="c-comment">// notifications → { notifications, pagination }</span>
+&nbsp;&nbsp;<span class="c-comment">// ALL of them, same key.</span>
+}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══ VERDICT ══ -->
+  <div class="verdict-strip">
+    <div>
+      <div class="verdict-text">
+        Transcript A produced 7 distinct JSON shapes with no consistent envelope.<br>Transcript B produced 1 success shape across every module, every turn.
+      </div>
+      <div class="verdict-note">// Data point: response contract fragmentation — independent of validation or error class analysis</div>
+    </div>
+    <div class="num-pair">
+      <div class="num-block">
+        <div class="num-big" style="color:var(--red);">7</div>
+        <div class="num-label">A — response<br>shapes</div>
+      </div>
+      <div class="divider-v"></div>
+      <div class="num-block">
+        <div class="num-big" style="color:var(--green);">2</div>
+        <div class="num-label">B — response<br>shapes</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div style="
+  margin-top:40px;
+  display:flex;
+  justify-content:center;
+  gap:14px;
+  flex-wrap:wrap;
+  padding-top:20px;
+  border-top:1px solid #1e2430;
+">
+
+  <a href="codetestreport.html"
+     style="
+     padding:10px 16px;
+     background:#12161d;
+     border:1px solid #1e2430;
+     border-radius:6px;
+     color:#ffffff;
+     text-decoration:none;
+     font-size:12px;
+     letter-spacing:.05em;">
+     ← Back to Main Audit
+  </a>
+
+  <a href="zod-migration-test.html"
+     style="
+     padding:10px 16px;
+     background:#12161d;
+     border:1px solid #1e2430;
+     border-radius:6px;
+     color:#ffffff;
+     text-decoration:none;
+     font-size:12px;
+     letter-spacing:.05em;">
+     View Zod Migration Test →
+  </a>
+
+</div>
+</body>
+</html>
