@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Calmkeep Documentation</title>
+
+<style>
+:root {
+  --bg:#0b1020;
+  --card:#11172e;
+  --muted:#a7b8d0;
+  --text:#eaf2ff;
+  --electric-500:#1b97ff;
+  --electric-700:#0b72c4;
+  --seafoam:#89f3d1;
+  --shadow:0 12px 34px rgba(0,0,0,.38);
+  --radius-lg:26px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'Segoe UI',Roboto,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1000px 500px at 2% 1%, rgba(137,243,209,.12), transparent 60%),
+    radial-gradient(950px 480px at 98% 99%, rgba(36,164,255,.12), transparent 65%),
+    linear-gradient(#0b1020,#0b1020);
+}
+
+header{
+  text-align:center;
+  padding:100px 20px 60px;
+}
+
+h1{
+  font-size:46px;
+  background:linear-gradient(90deg,#24a4ff,#89f3d1);
+  -webkit-background-clip:text;
+  color:transparent;
+  margin-bottom:18px;
+}
+
+.subtitle{
+  font-size:18px;
+  color:var(--muted);
+  max-width:800px;
+  margin:0 auto;
+  line-height:1.7;
+}
+
+section{
+  max-width:1100px;
+  margin:70px auto;
+  padding:0 20px;
+}
+
+.card{
+  background:linear-gradient(
+    180deg,
+    rgba(36,164,255,.07),
+    rgba(137,243,209,.05) 65%,
+    rgba(0,0,0,.2)
+  ), var(--card);
+  border-radius:var(--radius-lg);
+  padding:40px;
+  box-shadow:var(--shadow);
+  margin-bottom:40px;
+}
+
+h2{
+  font-size:28px;
+  margin-bottom:18px;
+  color:var(--seafoam);
+}
+
+h3{
+  margin-top:20px;
+  margin-bottom:10px;
+}
+
+p{
+  color:var(--muted);
+  line-height:1.8;
+  font-size:16px;
+}
+
+ul{
+  margin-top:16px;
+  padding-left:20px;
+  color:var(--muted);
+  line-height:1.8;
+}
+
+pre{
+  background:#0a0f22;
+  padding:20px;
+  border-radius:14px;
+  color:#cce4ff;
+  font-size:14px;
+  overflow:auto;
+  margin-top:16px;
+}
+
+footer{
+  text-align:center;
+  padding:60px 20px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+.bottom-glow{
+  height:250px;
+  background: radial-gradient(70% 100% at 50% 100%, rgba(137,243,209,0.25), transparent 80%);
+}
+
+a{
+  color:#89f3d1;
+  text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Calmkeep Documentation</h1>
+<div class="subtitle">
+Getting started with the Calmkeep continuity layer for Claude.
+</div>
+</header>
+
+<section>
+
+<div class="card">
+<h2>Quick Start</h2>
+
+<p>Install the Calmkeep SDK and route your Claude API usage through the Calmkeep runtime.</p>
+
+<pre>
+pip install calmkeep
+</pre>
+
+<p>Then initialize the client:</p>
+
+<pre>
+from calmkeep import CalmkeepClient
+
+client = CalmkeepClient(
+    calmkeep_key="YOUR_CALMKEEP_SUBSCRIPTION_KEY",
+    claude_key="YOUR_CLAUDE_API_KEY"
+)
+
+response = client.complete(
+    prompt="Continue evolving the existing multi-tenant API..."
+)
+</pre>
+
+<p>Calmkeep preserves structural continuity across extended multi-turn workflows.</p>
+
+</div>
+
+<div class="card">
+<h2>Claude Code Plugin</h2>
+
+<p>Developers using Claude Code can install the Calmkeep plugin directly.</p>
+
+<pre>
+/plugin marketplace add calmkeepai-cloud/calmkeep-claude-plugin
+/plugin install calmkeep-continuity
+</pre>
+
+<p>After installation, set your Calmkeep API key:</p>
+
+<pre>
+export CALMKEEP_API_KEY=YOUR_CALMKEEP_SUBSCRIPTION_KEY
+</pre>
+
+<p>
+Plugin repository:<br>
+<a href="https://github.com/calmkeepai-cloud/calmkeep-claude-plugin">
+https://github.com/calmkeepai-cloud/calmkeep-claude-plugin
+</a>
+</p>
+
+</div>
+
+<div class="card">
+<h2>Using Calmkeep in Cursor</h2>
+
+<p>Cursor users can integrate Calmkeep by routing Claude calls through the SDK.</p>
+
+<pre>
+pip install calmkeep
+</pre>
+
+<p>Example integration:</p>
+
+<pre>
+from calmkeep import CalmkeepClient
+import os
+
+client = CalmkeepClient(
+    calmkeep_key=os.getenv("CALMKEEP_API_KEY"),
+    claude_key=os.getenv("ANTHROPIC_API_KEY")
+)
+</pre>
+
+<p>
+Calmkeep ensures architectural decisions remain consistent across long Cursor sessions.
+</p>
+
+</div>
+
+<div class="card">
+<h2>Using Calmkeep with OpenClaw</h2>
+
+<p>OpenClaw workflows can integrate Calmkeep through environment variables and the SDK.</p>
+
+<pre>
+export CALMKEEP_API_KEY=your_key
+export ANTHROPIC_API_KEY=your_claude_key
+</pre>
+
+<p>Then call the Calmkeep client within your workflow scripts.</p>
+
+<p>
+Calmkeep acts as a runtime orchestration layer around Claude API usage.
+</p>
+
+</div>
+
+<div class="card">
+<h2>Architecture Overview</h2>
+
+<p>Your Application → Calmkeep Runtime → Claude API → Structured Response</p>
+
+<ul>
+<li>Bring your own Claude API key</li>
+<li>Claude billing remains directly with Anthropic</li>
+<li>No token resale or proxy billing</li>
+<li>No modification of model weights</li>
+<li>External runtime orchestration only</li>
+</ul>
+
+</div>
+
+<div class="card">
+<h2>Troubleshooting</h2>
+
+<h3>Missing Calmkeep API key</h3>
+
+<pre>
+export CALMKEEP_API_KEY=your_key
+</pre>
+
+<h3>Claude API key not configured</h3>
+
+<pre>
+export ANTHROPIC_API_KEY=your_claude_key
+</pre>
+
+<p>Ensure both keys are available to your environment before running Calmkeep.</p>
+
+</div>
+
+<div class="card">
+<h2>Support</h2>
+
+<p>
+If you encounter issues integrating Calmkeep, you can reach support through the live chat available on the Calmkeep site.
+</p>
+
+<p>
+<a href="https://calmkeep.ai/chat">Launch Live Chat</a>
+</p>
+
+</div>
+
+</section>
+
+<footer>
+© 2026 Calmkeep Systems · Continuity Layer Documentation
+</footer>
+
+<div class="bottom-glow"></div>
+
+</body>
+</html>
