@@ -346,15 +346,16 @@ Developers using Claude Code can install the Calmkeep plugin directly:
 </pre>
 
 <p>
-After installation, set your Calmkeep API key:
+After installation, configure your API keys:
 </p>
 
 <pre>
 export CALMKEEP_API_KEY=YOUR_CALMKEEP_SUBSCRIPTION_KEY
+export CLAUDE_API_KEY=YOUR_CLAUDE_API_KEY
 </pre>
 
 <p style="margin-top:16px;">
-The plugin enables Claude Code to invoke Calmkeep automatically during complex multi-step development workflows.
+The plugin routes Claude Code requests through the Calmkeep runtime, allowing long multi-step development workflows to maintain architectural continuity.
 </p>
   <p>
 Plugin repository:
@@ -404,6 +405,7 @@ function toggleReports(){
 
 </body>
 </html>
+
 
 
 
