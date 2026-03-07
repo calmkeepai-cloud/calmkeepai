@@ -312,6 +312,48 @@ response = client.complete(
     prompt="Continue evolving the existing multi-tenant API..."
 )
 </pre>
+  <h3 style="margin-top:30px;color:#89f3d1;">Accessing Calmkeep</h3>
+
+<p style="margin-top:14px;">
+There are two ways to use Calmkeep depending on your workflow.
+</p>
+
+<h4 style="margin-top:18px;">1. Python SDK Integration</h4>
+
+<p>
+Install the Calmkeep SDK and route your Claude calls through the Calmkeep runtime.
+</p>
+
+<pre>
+pip install calmkeep
+</pre>
+
+<p>
+Use your Calmkeep subscription key together with your Claude API key.
+</p>
+
+<h4 style="margin-top:24px;">2. Claude Code Plugin</h4>
+
+<p>
+Developers using Claude Code can install the Calmkeep plugin directly:
+</p>
+
+<pre>
+/plugin marketplace add calmkeepai-cloud/calmkeep-claude-plugin
+/plugin install calmkeep-continuity
+</pre>
+
+<p>
+After installation, set your Calmkeep API key:
+</p>
+
+<pre>
+export CALMKEEP_API_KEY=YOUR_CALMKEEP_SUBSCRIPTION_KEY
+</pre>
+
+<p style="margin-top:16px;">
+The plugin enables Claude Code to invoke Calmkeep automatically during complex multi-step development workflows.
+</p>
 
 </div>
 
@@ -353,3 +395,4 @@ function toggleReports(){
 
 </body>
 </html>
+
