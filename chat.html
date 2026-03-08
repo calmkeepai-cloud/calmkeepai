@@ -1,675 +1,529 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Calmkeep Chat</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Calmkeep Chat</title>
 
-  <style>
-    :root{
-      --bg:#0b1020;
-      --card:#11172e;
-      --muted:#a7b8d0;
-      --text:#eaf2ff;
-      --electric:#24a4ff;
-      --seafoam:#89f3d1;
-      --shadow:0 12px 34px rgba(0,0,0,.38);
-      --r:18px;
-    }
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{
-      font-family:"Segoe UI",Roboto,sans-serif;
-      background:
-        radial-gradient(1000px 500px at 2% 1%, rgba(137,243,209,.12), transparent 60%),
-        radial-gradient(950px 480px at 98% 99%, rgba(36,164,255,.12), transparent 65%),
-        linear-gradient(#0b1020,#0b1020);
-      color:var(--text);
-      padding:24px;
-    }
-    .wrap{max-width:1100px;margin:0 auto;}
-    h1{
-      font-size:28px;
-      margin-bottom:14px;
-      background:linear-gradient(90deg,var(--electric),var(--seafoam));
-      -webkit-background-clip:text;
-      color:transparent;
-    }
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-    .card{
-      background:linear-gradient(180deg, rgba(36,164,255,.07), rgba(137,243,209,.05) 65%, rgba(0,0,0,.2)), var(--card);
-      border-radius:var(--r);
-      box-shadow:var(--shadow);
-      padding:16px;
-    }
-    label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px;}
-    input, textarea{
-      width:100%;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background:#0a0f22;
-      color:var(--text);
-      padding:12px;
-      font-size:14px;
-      outline:none;
-    }
-    input::placeholder, textarea::placeholder{color:rgba(167,184,208,.65);}
-    textarea{resize:vertical;}
-    .btn{
-      cursor:pointer;
-      padding:12px 16px;
-      border-radius:999px;
-      border:none;
-      font-weight:700;
-      font-size:14px;
-      color:#fff;
-      background:linear-gradient(180deg,#1b97ff,#0b72c4);
-      box-shadow:0 0 18px rgba(36,164,255,.35), 0 8px 30px rgba(0,0,0,.35);
-    }
-    .btn.secondary{
-      background:linear-gradient(180deg,#89f3d1,#5ad4b3);
-      color:#0b1020;
-    }
-    .btn.ghost{
-      background:transparent;
-      border:1px solid rgba(255,255,255,.14);
-      box-shadow:none;
-      color:var(--text);
-    }
-    .btn:disabled{opacity:.55;cursor:not-allowed;}
-    .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center;}
-    .hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.6;}
-    .chat{
-      height:72vh;
-      overflow:auto;
-      padding:14px;
-      border-radius:var(--r);
-      background:#080c1a;
-      border:1px solid rgba(255,255,255,.08);
-    }
-    .msg{margin:10px 0;display:flex;}
-    .bubble{
-      max-width:82%;
-      padding:12px 14px;
-      border-radius:16px;
-      line-height:1.55;
-      white-space:pre-wrap;
-      word-wrap:break-word;
-      border:1px solid rgba(255,255,255,.08);
-    }
-    .me{justify-content:flex-end;}
-    .me .bubble{background:rgba(36,164,255,.12);}
-    .bot{justify-content:flex-start;}
-    .bot .bubble{background:rgba(137,243,209,.10);}
-    .meta{font-size:11px;color:rgba(167,184,208,.8);margin-top:6px;}
-    .composer{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px;}
-    textarea{height:72px;}
-    .status{margin-top:10px;font-size:12px;color:var(--muted);}
-    code{color:#cce4ff;}
-    .tiny{font-size:12px;color:var(--muted);}
-    .checkbox{
-      display:flex;gap:8px;align-items:center;
-      font-size:12px;color:var(--muted);
-      user-select:none;
-    }
-    .checkbox input{width:auto;}
+<!-- PDF parser -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-    /* Export modal */
-    .modalOverlay{
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      z-index:9999;
-    }
-    .modal{
-      width:min(920px, 100%);
-      background:linear-gradient(180deg, rgba(36,164,255,.07), rgba(137,243,209,.05) 65%, rgba(0,0,0,.2)), var(--card);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:18px;
-      box-shadow:var(--shadow);
-      padding:16px;
-    }
-    .modalTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .modalTitle{
-      font-weight:800;
-      letter-spacing:.2px;
-    }
-    .exportText{
-      width:100%;
-      height:52vh;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background:#080c1a;
-      color:var(--text);
-      padding:12px;
-      font-size:13px;
-      line-height:1.5;
-      outline:none;
-      resize:vertical;
-      white-space:pre;
-    }
+<style>
+:root{
+--bg:#0b1020;
+--card:#11172e;
+--muted:#a7b8d0;
+--text:#eaf2ff;
+--electric:#24a4ff;
+--seafoam:#89f3d1;
+--shadow:0 12px 34px rgba(0,0,0,.38);
+--r:18px;
+}
 
-    /* -----------------------------
-       MOBILE OPTIMIZATION
-    ----------------------------- */
-    @media (max-width: 768px){
-      body{
-        padding:12px;
-        overflow-x:hidden;
-      }
+*{box-sizing:border-box;margin:0;padding:0;}
 
-      .wrap{
-        max-width:100%;
-      }
+body{
+font-family:"Segoe UI",Roboto,sans-serif;
+background:
+radial-gradient(1000px 500px at 2% 1%, rgba(137,243,209,.12), transparent 60%),
+radial-gradient(950px 480px at 98% 99%, rgba(36,164,255,.12), transparent 65%),
+linear-gradient(#0b1020,#0b1020);
+color:var(--text);
+padding:24px;
+}
 
-      h1{
-        font-size:22px;
-      }
+.wrap{max-width:1100px;margin:0 auto;}
 
-      .row{
-        grid-template-columns:1fr;
-      }
+h1{
+font-size:28px;
+margin-bottom:14px;
+background:linear-gradient(90deg,var(--electric),var(--seafoam));
+-webkit-background-clip:text;
+color:transparent;
+}
 
-      .card{
-        padding:14px;
-      }
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
 
-      .chat{
-        height:60vh;
-      }
+.card{
+background:linear-gradient(180deg, rgba(36,164,255,.07), rgba(137,243,209,.05) 65%, rgba(0,0,0,.2)), var(--card);
+border-radius:var(--r);
+box-shadow:var(--shadow);
+padding:16px;
+}
 
-      .composer{
-        position:sticky;
-        bottom:0;
-        background:var(--card);
-        padding:10px;
-        border-top:1px solid rgba(255,255,255,.08);
-        grid-template-columns:1fr auto;
-      }
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px;}
 
-      textarea{
-        height:60px;
-        font-size:16px;
-      }
+input, textarea{
+width:100%;
+border-radius:12px;
+border:1px solid rgba(255,255,255,.10);
+background:#0a0f22;
+color:var(--text);
+padding:12px;
+font-size:14px;
+outline:none;
+}
 
-      .btn{
-        padding:12px 14px;
-        font-size:14px;
-      }
+textarea{resize:vertical;}
 
-      .bubble{
-        max-width:90%;
-        font-size:15px;
-      }
+.btn{
+cursor:pointer;
+padding:12px 16px;
+border-radius:999px;
+border:none;
+font-weight:700;
+font-size:14px;
+color:#fff;
+background:linear-gradient(180deg,#1b97ff,#0b72c4);
+box-shadow:0 0 18px rgba(36,164,255,.35), 0 8px 30px rgba(0,0,0,.35);
+}
 
-      .modal{
-        padding:14px;
-      }
+.btn.secondary{
+background:linear-gradient(180deg,#89f3d1,#5ad4b3);
+color:#0b1020;
+}
 
-      .exportText{
-        height:45vh;
-      }
-    }
-  </style>
+.btn.ghost{
+background:transparent;
+border:1px solid rgba(255,255,255,.14);
+box-shadow:none;
+color:var(--text);
+}
+
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center;}
+
+.hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.6;}
+
+.chat{
+height:72vh;
+overflow:auto;
+padding:14px;
+border-radius:var(--r);
+background:#080c1a;
+border:1px solid rgba(255,255,255,.08);
+}
+
+.msg{margin:10px 0;display:flex;}
+
+.bubble{
+max-width:82%;
+padding:12px 14px;
+border-radius:16px;
+line-height:1.55;
+white-space:pre-wrap;
+word-wrap:break-word;
+border:1px solid rgba(255,255,255,.08);
+}
+
+.me{justify-content:flex-end;}
+.me .bubble{background:rgba(36,164,255,.12);}
+
+.bot{justify-content:flex-start;}
+.bot .bubble{background:rgba(137,243,209,.10);}
+
+.meta{font-size:11px;color:rgba(167,184,208,.8);margin-top:6px;}
+
+.composer{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px;}
+
+.status{margin-top:10px;font-size:12px;color:var(--muted);}
+
+.tiny{font-size:12px;color:var(--muted);}
+
+/* document drop zone */
+
+.dropzone{
+border:2px dashed rgba(255,255,255,.18);
+border-radius:14px;
+padding:18px;
+text-align:center;
+color:var(--muted);
+margin-bottom:10px;
+transition:all .2s;
+}
+
+.dropzone.drag{
+border-color:var(--electric);
+background:rgba(36,164,255,.08);
+}
+
+.docItem{
+display:flex;
+justify-content:space-between;
+align-items:center;
+font-size:12px;
+margin-top:6px;
+}
+
+.docName{
+opacity:.9;
+}
+
+.removeDoc{
+font-size:11px;
+padding:4px 8px;
+}
+
+</style>
 </head>
 
 <body>
-  <div class="wrap">
-    <h1>Calmkeep Chat</h1>
 
-    <div class="row">
-      <div class="card">
-        <label>Keys (stored locally in your browser)</label>
+<div class="wrap">
 
-        <input id="calmkeepKey" placeholder="Calmkeep key (ck_...)" autocomplete="off" />
-        <div style="height:10px"></div>
+<h1>Calmkeep Chat</h1>
 
-        <input id="anthropicKey" placeholder="Claude API key (sk-ant-...)" autocomplete="off" />
+<div class="row">
 
-        <div class="controls">
-          <button class="btn secondary" type="button" id="saveBtn">Save keys</button>
-          <button class="btn ghost" type="button" id="clearKeysBtn">Clear keys</button>
-          <label class="checkbox">
-            <input type="checkbox" id="showKeys" />
-            Show keys
-          </label>
-        </div>
+<div class="card">
 
-        <div class="hint">
-          Requests send headers: <code>calmkeep-key</code> and <code>anthropic-api-key</code>.
-        </div>
-      </div>
+<label>Keys (stored locally in your browser)</label>
 
-      <div class="card">
-        <label>Service</label>
-        <div class="tiny">
-          Runtime: <code id="runtimeLabel"></code>
-        </div>
-        <div class="hint" style="margin-top:10px;">
-          Lightweight BYO Claude key web chat for Calmkeep.
-        </div>
+<input id="calmkeepKey" placeholder="Calmkeep key (ck_...)" autocomplete="off" />
 
-        <div class="controls">
-          <button class="btn" type="button" id="newChatBtn">New chat</button>
-          <button class="btn secondary" type="button" id="exportBtn">Export</button>
-        </div>
-      </div>
-    </div>
+<div style="height:10px"></div>
 
-    <div class="card">
-      <div class="chat" id="chat"></div>
+<input id="anthropicKey" placeholder="Claude API key (sk-ant-...)" autocomplete="off" />
 
-      <div class="composer">
-        <textarea id="prompt" placeholder="Type a message… (Shift+Enter for newline)"></textarea>
-        <button class="btn" type="button" id="sendBtn">Send</button>
-      </div>
+<div class="controls">
+<button class="btn secondary" id="saveBtn">Save keys</button>
+<button class="btn ghost" id="clearKeysBtn">Clear keys</button>
 
-      <div class="status" id="status">Ready.</div>
-      <div class="hint">
-        This page keeps local message history and stitches it into one prompt (simple continuity).
-      </div>
-    </div>
-  </div>
+<label class="tiny">
+<input type="checkbox" id="showKeys"> Show keys
+</label>
 
-  <!-- Export Modal -->
-  <div class="modalOverlay" id="exportOverlay">
-    <div class="modal">
-      <div class="modalTop">
-        <div class="modalTitle">Export Chat</div>
-        <div class="controls" style="margin-top:0;">
-          <button class="btn secondary" type="button" id="copyExportBtn">Copy</button>
-          <button class="btn ghost" type="button" id="closeExportBtn">Close</button>
-        </div>
-      </div>
-      <textarea class="exportText" id="exportText" readonly></textarea>
-      <div class="hint" style="margin-top:10px;">
-        If your browser blocks downloads, you can copy from here or open in a new tab.
-      </div>
-      <div class="controls">
-        <button class="btn ghost" type="button" id="openTabBtn">Open in new tab</button>
-      </div>
-    </div>
-  </div>
+</div>
+
+<div class="hint">
+Requests send headers: <code>calmkeep-key</code> and <code>anthropic-api-key</code>.
+</div>
+
+</div>
+
+
+<div class="card">
+
+<label>Service</label>
+
+<div class="tiny">
+Runtime: <code id="runtimeLabel"></code>
+</div>
+
+<div class="hint" style="margin-top:10px;">
+Lightweight BYO Claude key web chat for Calmkeep.
+</div>
+
+<div class="controls">
+<button class="btn" id="newChatBtn">New chat</button>
+<button class="btn secondary" id="exportBtn">Export</button>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- DOCUMENT CARD -->
+
+<div class="card">
+
+<label>Documents</label>
+
+<div id="dropZone" class="dropzone">
+Drag files here or
+<button class="btn ghost" id="uploadBtn">Upload</button>
+<input type="file" id="docUpload" multiple style="display:none">
+</div>
+
+<div id="docList" class="tiny"></div>
+
+<div class="hint">
+Documents are automatically included in the prompt context.
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="chat" id="chat"></div>
+
+<div class="composer">
+<textarea id="prompt" placeholder="Type a message… (Shift+Enter for newline)"></textarea>
+<button class="btn" id="sendBtn">Send</button>
+</div>
+
+<div class="status" id="status">Ready.</div>
+
+<div class="hint">
+This page keeps local message history and stitches it into one prompt.
+</div>
+
+</div>
+
+</div>
 
 <script>
-  // -----------------------------
-  // CONFIG
-  // -----------------------------
-  const MODAL_RUNTIME_URL = "https://diargallop--calmkeep-service-calmkeep-service.modal.run/runtime";
 
-  // -----------------------------
-  // Local storage keys
-  // -----------------------------
-  const LS = {
-    ck: "ck_calmkeep_key",
-    ak: "ck_anthropic_key",
-    hist: "ck_chat_history_v1"
-  };
+const MODAL_RUNTIME_URL="https://diargallop--calmkeep-service-calmkeep-service.modal.run/runtime";
 
-  // -----------------------------
-  // State
-  // -----------------------------
-  let history = []; // {role:"user"|"assistant", content:string}
+const LS={
+ck:"ck_calmkeep_key",
+ak:"ck_anthropic_key",
+hist:"ck_chat_history_v1"
+};
 
-  // -----------------------------
-  // Helpers
-  // -----------------------------
-  const el = (id) => document.getElementById(id);
+let history=[];
+let documents=[];
+const CHUNK_SIZE = 2500;
+const MAX_CHUNKS = 6;
 
-  function setStatus(msg){
-    el("status").textContent = msg;
+function chunkText(text){
+
+  const chunks = [];
+  let i = 0;
+
+  while(i < text.length){
+    chunks.push(text.slice(i, i + CHUNK_SIZE));
+    i += CHUNK_SIZE;
   }
 
-  function addMessage(role, text, meta=""){
-    const chatEl = el("chat");
-    const row = document.createElement("div");
-    row.className = "msg " + (role === "user" ? "me" : "bot");
+  return chunks;
+}
 
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
-    bubble.textContent = text;
+const el=id=>document.getElementById(id);
 
-    row.appendChild(bubble);
+function setStatus(msg){el("status").textContent=msg}
+function scoreChunk(chunk, query){
 
-    if (meta) {
-      const m = document.createElement("div");
-      m.className = "meta";
-      m.textContent = meta;
+  const words = query.toLowerCase().split(/\W+/);
 
-      const wrap = document.createElement("div");
-      wrap.style.maxWidth = "82%";
-      wrap.appendChild(row);
-      wrap.appendChild(m);
-      chatEl.appendChild(wrap);
-    } else {
-      chatEl.appendChild(row);
-    }
+  let score = 0;
 
-    chatEl.scrollTop = chatEl.scrollHeight;
-    return bubble;
-  }
-
-  function addAssistantMessageShell(){
-    const chatEl = el("chat");
-
-    const wrap = document.createElement("div");
-    wrap.style.maxWidth = "82%";
-
-    const row = document.createElement("div");
-    row.className = "msg bot";
-
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
-    bubble.textContent = "";
-
-    const meta = document.createElement("div");
-    meta.className = "meta";
-    meta.textContent = "";
-
-    row.appendChild(bubble);
-    wrap.appendChild(row);
-    wrap.appendChild(meta);
-    chatEl.appendChild(wrap);
-
-    chatEl.scrollTop = chatEl.scrollHeight;
-
-    return { bubble, meta };
-  }
-
-  function getKeys(){
-    return {
-      calmkeepKey: el("calmkeepKey").value.trim(),
-      anthropicKey: el("anthropicKey").value.trim()
-    };
-  }
-
-  function validateKeys(){
-    const { calmkeepKey, anthropicKey } = getKeys();
-    if (!calmkeepKey) return "Missing Calmkeep key.";
-    if (!anthropicKey) return "Missing Claude API key.";
-    return null;
-  }
-
-  function stitchPrompt(){
-    const lines = history.map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`);
-    return lines.join("\n\n") + "\n\nAssistant:";
-  }
-
-  function buildExportText(){
-    if (!history.length) return "";
-    const blocks = history.map(m => {
-      const label = m.role === "user" ? "USER" : "ASSISTANT";
-      return `${label}:\n${m.content}\n`;
-    });
-    return blocks.join("\n-----------------------------\n\n");
-  }
-
-  async function callRuntime(userText, bubbleEl, metaEl){
-    const err = validateKeys();
-    if (err) throw new Error(err);
-
-    const { calmkeepKey, anthropicKey } = getKeys();
-
-    history.push({ role:"user", content:userText });
-
-    const payload = { prompt: stitchPrompt(), params: {} };
-
-    const res = await fetch(MODAL_RUNTIME_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "accept": "application/json",
-        "calmkeep-key": calmkeepKey,
-        "anthropic-api-key": anthropicKey
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-      const errText = await res.text();
-      let errData = null;
-      try { errData = JSON.parse(errText); } catch {}
-      const msg = errData?.detail ? JSON.stringify(errData.detail) : (errText || `HTTP ${res.status}`);
-      throw new Error(msg);
-    }
-
-    const reader = res.body ? res.body.getReader() : null;
-
-    // Fallback if stream reader unavailable
-    if (!reader) {
-      const text = await res.text();
-      let data = null;
-      try { data = JSON.parse(text); } catch {}
-
-      const out = data?.result?.text ?? text;
-      const latency = data?.latency_ms != null ? `${data.latency_ms}ms` : "";
-      const tokens = data?.usage?.total_tokens != null ? `tokens≈${data.usage.total_tokens}` : "";
-      const meta = [latency, tokens].filter(Boolean).join(" · ");
-
-      bubbleEl.textContent = out;
-      metaEl.textContent = meta;
-
-      history.push({ role:"assistant", content: out });
-      localStorage.setItem(LS.hist, JSON.stringify(history));
-
-      return { out, meta };
-    }
-
-    const decoder = new TextDecoder();
-    let accumulated = "";
-    let displayedText = "";
-    let looksLikeFinalJson = false;
-
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      accumulated += chunk;
-
-      const trimmed = accumulated.trimStart();
-
-      // If backend eventually sends one JSON object, don't render the raw JSON blob while it arrives.
-      if (trimmed.startsWith("{")) {
-        looksLikeFinalJson = true;
-      } else if (!looksLikeFinalJson) {
-        displayedText += chunk;
-        bubbleEl.textContent = displayedText;
-        el("chat").scrollTop = el("chat").scrollHeight;
-      }
-    }
-
-    // Final parse
-    let data = null;
-    try { data = JSON.parse(accumulated); } catch {}
-
-    const out = data?.result?.text ?? (displayedText || accumulated);
-    const latency = data?.latency_ms != null ? `${data.latency_ms}ms` : "";
-    const tokens = data?.usage?.total_tokens != null ? `tokens≈${data.usage.total_tokens}` : "";
-    const meta = [latency, tokens].filter(Boolean).join(" · ");
-
-    bubbleEl.textContent = out;
-    metaEl.textContent = meta;
-
-    history.push({ role:"assistant", content: out });
-    localStorage.setItem(LS.hist, JSON.stringify(history));
-
-    return { out, meta };
-  }
-
-  async function send(text){
-    const trimmed = (text || "").trim();
-    if (!trimmed) return;
-
-    el("sendBtn").disabled = true;
-
-    addMessage("user", trimmed);
-    const shell = addAssistantMessageShell();
-
-    setStatus("Calling runtime…");
-
-    try {
-      await callRuntime(trimmed, shell.bubble, shell.meta);
-      setStatus("Ready.");
-    } catch (e) {
-      shell.bubble.textContent = `Error: ${e.message}`;
-      shell.meta.textContent = "";
-      setStatus("Error.");
-    } finally {
-      el("sendBtn").disabled = false;
-      el("prompt").value = "";
-      el("prompt").focus();
+  for(const w of words){
+    if(w.length > 3 && chunk.toLowerCase().includes(w)){
+      score++;
     }
   }
 
-  // -----------------------------
-  // Export logic
-  // -----------------------------
-  function openExportModal(text){
-    el("exportText").value = text || "";
-    el("exportOverlay").style.display = "flex";
-  }
+  return score;
+}
+function renderDocuments(){
 
-  function closeExportModal(){
-    el("exportOverlay").style.display = "none";
-  }
+const list=el("docList");
+list.innerHTML="";
 
-  function tryDownload(text){
-    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
+documents.forEach((doc,i)=>{
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "calmkeep-chat.txt";
-    a.rel = "noopener";
+const div=document.createElement("div");
+div.className="docItem";
 
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+div.innerHTML=`
+<span class="docName">${doc.name}</span>
+<button class="btn ghost removeDoc" data-i="${i}">remove</button>
+`;
 
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-  }
+list.appendChild(div);
 
-  function openInNewTab(text){
-    const encoded = encodeURIComponent(text);
-    const dataUrl = "data:text/plain;charset=utf-8," + encoded;
-    window.open(dataUrl, "_blank", "noopener,noreferrer");
-  }
+});
 
-  // -----------------------------
-  // Bind after DOM is ready
-  // -----------------------------
-  window.addEventListener("DOMContentLoaded", () => {
-    el("runtimeLabel").textContent = MODAL_RUNTIME_URL;
+document.querySelectorAll(".removeDoc").forEach(btn=>{
+btn.onclick=()=>{
+documents.splice(btn.dataset.i,1);
+renderDocuments();
+};
+});
 
-    const ck = localStorage.getItem(LS.ck);
-    const ak = localStorage.getItem(LS.ak);
-    const hist = localStorage.getItem(LS.hist);
+}
 
-    if (ck) el("calmkeepKey").value = ck;
-    if (ak) el("anthropicKey").value = ak;
+async function parseFile(file){
 
-    el("calmkeepKey").type = "password";
-    el("anthropicKey").type = "password";
+const ext=file.name.split(".").pop().toLowerCase();
 
-    if (hist) {
-      try {
-        history = JSON.parse(hist) || [];
-        const toRender = history.slice(-30);
-        for (const m of toRender) addMessage(m.role, m.content);
-        setStatus("Restored recent chat from this browser.");
-      } catch {
-        history = [];
-        setStatus("Ready. Enter keys and send a message.");
-      }
-    } else {
-      setStatus("Ready. Enter keys and send a message.");
-    }
+if(["txt","md","json","csv","js","ts","py","html"].includes(ext)){
+return await file.text();
+}
 
-    el("saveBtn").addEventListener("click", () => {
-      localStorage.setItem(LS.ck, el("calmkeepKey").value.trim());
-      localStorage.setItem(LS.ak, el("anthropicKey").value.trim());
-      setStatus("Saved keys locally in this browser.");
-    });
+if(ext==="pdf"){
 
-    el("clearKeysBtn").addEventListener("click", () => {
-      localStorage.removeItem(LS.ck);
-      localStorage.removeItem(LS.ak);
-      el("calmkeepKey").value = "";
-      el("anthropicKey").value = "";
-      setStatus("Cleared keys.");
-    });
+const buffer=await file.arrayBuffer();
+const pdf=await pdfjsLib.getDocument({data:buffer}).promise;
 
-    el("showKeys").addEventListener("change", (e) => {
-      const show = !!e.target.checked;
-      el("calmkeepKey").type = show ? "text" : "password";
-      el("anthropicKey").type = show ? "text" : "password";
-    });
+let text="";
 
-    el("newChatBtn").addEventListener("click", () => {
-      history = [];
-      el("chat").innerHTML = "";
-      localStorage.removeItem(LS.hist);
-      setStatus("New chat started.");
-    });
+for(let i=1;i<=pdf.numPages;i++){
+const page=await pdf.getPage(i);
+const content=await page.getTextContent();
+text+=content.items.map(s=>s.str).join(" ")+"\n\n";
+}
 
-    el("sendBtn").addEventListener("click", () => send(el("prompt").value));
+return text;
 
-    el("prompt").addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        send(el("prompt").value);
-      }
-    });
+}
 
-    el("exportBtn").addEventListener("click", () => {
-      const text = buildExportText();
-      if (!text) {
-        setStatus("Nothing to export.");
-        return;
-      }
+return await file.text();
+}
 
-      openExportModal(text);
+async function handleFiles(files){
 
-      try {
-        tryDownload(text);
-        setStatus("Export started (if download is blocked, use the export window).");
-      } catch {
-        setStatus("Download blocked — use the export window.");
-      }
-    });
+for(const file of files){
 
-    el("closeExportBtn").addEventListener("click", closeExportModal);
+setStatus("Processing "+file.name);
 
-    el("exportOverlay").addEventListener("click", (e) => {
-      if (e.target === el("exportOverlay")) closeExportModal();
-    });
+const text=await parseFile(file);
 
-    el("copyExportBtn").addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(el("exportText").value);
-        setStatus("Copied export to clipboard.");
-      } catch {
-        el("exportText").focus();
-        el("exportText").select();
-        setStatus("Select-all ready — copy manually.");
-      }
-    });
+documents.push({
+name:file.name,
+chunks:chunkText(text)
+});
 
-    el("openTabBtn").addEventListener("click", () => {
-      const text = el("exportText").value || "";
-      if (!text) return;
-      openInNewTab(text);
-    });
-  });
+}
+
+renderDocuments();
+setStatus("Documents ready.");
+
+}
+
+function stitchPrompt(){
+
+let relevantChunks=[];
+
+const lastUserMessage = history.length
+? history[history.length-1].content
+: "";
+
+documents.forEach(doc=>{
+
+doc.chunks.forEach(chunk=>{
+
+relevantChunks.push({
+doc:doc.name,
+chunk,
+score:scoreChunk(chunk,lastUserMessage)
+});
+
+});
+
+});
+
+relevantChunks.sort((a,b)=>b.score-a.score);
+
+relevantChunks=relevantChunks.slice(0,MAX_CHUNKS);
+
+let docText="";
+
+if(relevantChunks.length){
+
+docText="DOCUMENT CONTEXT:\n\n";
+
+relevantChunks.forEach(c=>{
+docText+=`--- ${c.doc} ---\n${c.chunk}\n\n`;
+});
+
+}
+
+const lines=history.map(
+m=>`${m.role==="user"?"User":"Assistant"}: ${m.content}`
+);
+
+return docText + lines.join("\n\n") + "\n\nAssistant:";
+
+}
+
+function addMessage(role,text){
+
+const chatEl=el("chat");
+
+const row=document.createElement("div");
+row.className="msg "+(role==="user"?"me":"bot");
+
+const bubble=document.createElement("div");
+bubble.className="bubble";
+bubble.textContent=text;
+
+row.appendChild(bubble);
+chatEl.appendChild(row);
+
+chatEl.scrollTop=chatEl.scrollHeight;
+
+}
+
+async function send(text){
+
+if(!text.trim())return;
+
+addMessage("user",text);
+
+history.push({role:"user",content:text});
+
+setStatus("Calling runtime…");
+
+const res=await fetch(MODAL_RUNTIME_URL,{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"calmkeep-key":el("calmkeepKey").value,
+"anthropic-api-key":el("anthropicKey").value
+},
+body:JSON.stringify({
+prompt:stitchPrompt(),
+params:{}
+})
+});
+
+const data=await res.json();
+
+addMessage("assistant",data.result?.text||JSON.stringify(data));
+
+history.push({
+role:"assistant",
+content:data.result?.text||""
+});
+
+setStatus("Ready.");
+
+el("prompt").value="";
+
+}
+
+window.addEventListener("DOMContentLoaded",()=>{
+
+el("runtimeLabel").textContent=MODAL_RUNTIME_URL;
+
+el("sendBtn").onclick=()=>send(el("prompt").value);
+
+el("prompt").addEventListener("keydown",e=>{
+if(e.key==="Enter"&&!e.shiftKey){
+e.preventDefault();
+send(el("prompt").value);
+}
+});
+
+el("uploadBtn").onclick=()=>el("docUpload").click();
+
+el("docUpload").addEventListener("change",e=>{
+handleFiles(e.target.files);
+});
+
+const drop=el("dropZone");
+
+drop.addEventListener("dragover",e=>{
+e.preventDefault();
+drop.classList.add("drag");
+});
+
+drop.addEventListener("dragleave",()=>{
+drop.classList.remove("drag");
+});
+
+drop.addEventListener("drop",e=>{
+e.preventDefault();
+drop.classList.remove("drag");
+handleFiles(e.dataTransfer.files);
+});
+
+});
+
 </script>
 
 </body>
