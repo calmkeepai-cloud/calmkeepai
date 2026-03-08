@@ -594,8 +594,9 @@ el("exportBtn").onclick = () => {
   </head>
   <body>
 
-  <h1>Calmkeep Chat Export</h1>
-  `;
+<h1>Calmkeep Chat Export</h1>
+<p>${new Date().toLocaleString()}</p>
+`;
 
   history.forEach(msg => {
 
@@ -619,6 +620,16 @@ el("exportBtn").onclick = () => {
   const previewWindow = window.open();
   previewWindow.document.write(html);
   previewWindow.document.close();
+
+  const blob = new Blob([html], {type:"text/html"});
+const url = URL.createObjectURL(blob);
+
+const a = document.createElement("a");
+a.href = url;
+a.download = "calmkeep_chat_export.html";
+a.click();
+
+URL.revokeObjectURL(url);
 
 };
 
