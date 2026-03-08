@@ -480,6 +480,8 @@ role:"assistant",
 content:data.result?.text||""
 });
 
+localStorage.setItem(LS.hist,JSON.stringify(history));
+
 setStatus("Ready.");
 
 el("prompt").value="";
@@ -489,6 +491,47 @@ el("prompt").value="";
 window.addEventListener("DOMContentLoaded",()=>{
 
 el("runtimeLabel").textContent=MODAL_RUNTIME_URL;
+  const ck = localStorage.getItem(LS.ck);
+const ak = localStorage.getItem(LS.ak);
+
+if (ck) el("calmkeepKey").value = ck;
+if (ak) el("anthropicKey").value = ak;
+
+el("calmkeepKey").type = "password";
+el("anthropicKey").type = "password";
+const hist = localStorage.getItem(LS.hist);
+
+if(hist){
+  try{
+    history = JSON.parse(hist) || [];
+    const toRender = history.slice(-30);
+    for(const m of toRender){
+      addMessage(m.role,m.content);
+    }
+    setStatus("Restored recent chat.");
+  }catch{
+    history=[];
+  }
+}
+el("saveBtn").onclick = () => {
+  localStorage.setItem(LS.ck, el("calmkeepKey").value.trim());
+  localStorage.setItem(LS.ak, el("anthropicKey").value.trim());
+  setStatus("Saved keys locally.");
+};
+
+el("clearKeysBtn").onclick = () => {
+  localStorage.removeItem(LS.ck);
+  localStorage.removeItem(LS.ak);
+  el("calmkeepKey").value = "";
+  el("anthropicKey").value = "";
+  setStatus("Keys cleared.");
+};
+
+el("showKeys").addEventListener("change",(e)=>{
+  const show = e.target.checked;
+  el("calmkeepKey").type = show ? "text" : "password";
+  el("anthropicKey").type = show ? "text" : "password";
+});
 
 el("sendBtn").onclick=()=>send(el("prompt").value);
 
