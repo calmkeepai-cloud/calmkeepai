@@ -455,6 +455,7 @@ if(!text.trim())return;
 addMessage("user",text);
 
 history.push({role:"user",content:text});
+localStorage.setItem(LS.hist,JSON.stringify(history));
 
 setStatus("Calling runtime…");
 
@@ -534,6 +535,21 @@ el("showKeys").addEventListener("change",(e)=>{
 });
 
 el("sendBtn").onclick=()=>send(el("prompt").value);
+  el("newChatBtn").onclick = () => {
+  history = [];
+  localStorage.removeItem(LS.hist);
+  el("chat").innerHTML = "";
+  setStatus("New chat started.");
+};
+el("exportBtn").onclick = () => {
+  const blob = new Blob([JSON.stringify(history,null,2)],{type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "calmkeep_chat_export.json";
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
 el("prompt").addEventListener("keydown",e=>{
 if(e.key==="Enter"&&!e.shiftKey){
