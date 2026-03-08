@@ -542,13 +542,84 @@ el("sendBtn").onclick=()=>send(el("prompt").value);
   setStatus("New chat started.");
 };
 el("exportBtn").onclick = () => {
-  const blob = new Blob([JSON.stringify(history,null,2)],{type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "calmkeep_chat_export.json";
-  a.click();
-  URL.revokeObjectURL(url);
+
+  let html = `
+  <!doctype html>
+  <html>
+  <head>
+  <meta charset="utf-8">
+  <title>Calmkeep Chat Export</title>
+  <style>
+
+  body{
+    font-family:Segoe UI, Roboto, sans-serif;
+    background:#0b1020;
+    color:#eaf2ff;
+    padding:40px;
+    max-width:900px;
+    margin:auto;
+  }
+
+  h1{
+    color:#24a4ff;
+    margin-bottom:30px;
+  }
+
+  .msg{
+    margin-bottom:24px;
+  }
+
+  .role{
+    font-weight:700;
+    margin-bottom:6px;
+  }
+
+  .user .role{
+    color:#24a4ff;
+  }
+
+  .assistant .role{
+    color:#89f3d1;
+  }
+
+  .bubble{
+    background:#11172e;
+    padding:14px;
+    border-radius:12px;
+    line-height:1.6;
+    white-space:pre-wrap;
+  }
+
+  </style>
+  </head>
+  <body>
+
+  <h1>Calmkeep Chat Export</h1>
+  `;
+
+  history.forEach(msg => {
+
+    const roleClass = msg.role === "user" ? "user" : "assistant";
+    const roleName = msg.role === "user" ? "User" : "Assistant";
+
+    html += `
+    <div class="msg ${roleClass}">
+      <div class="role">${roleName}</div>
+      <div class="bubble">${msg.content}</div>
+    </div>
+    `;
+
+  });
+
+  html += `
+  </body>
+  </html>
+  `;
+
+  const previewWindow = window.open();
+  previewWindow.document.write(html);
+  previewWindow.document.close();
+
 };
 
 el("prompt").addEventListener("keydown",e=>{
