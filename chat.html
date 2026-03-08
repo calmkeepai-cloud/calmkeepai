@@ -1,604 +1,283 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Calmkeep Chat</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Calmkeep Chat</title>
 
-  <style>
-    :root{
-      --bg:#0b1020;
-      --card:#11172e;
-      --muted:#a7b8d0;
-      --text:#eaf2ff;
-      --electric:#24a4ff;
-      --seafoam:#89f3d1;
-      --shadow:0 12px 34px rgba(0,0,0,.38);
-      --r:18px;
-    }
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{
-      font-family:"Segoe UI",Roboto,sans-serif;
-      background:
-        radial-gradient(1000px 500px at 2% 1%, rgba(137,243,209,.12), transparent 60%),
-        radial-gradient(950px 480px at 98% 99%, rgba(36,164,255,.12), transparent 65%),
-        linear-gradient(#0b1020,#0b1020);
-      color:var(--text);
-      padding:24px;
-    }
-    .wrap{max-width:1100px;margin:0 auto;}
-    h1{
-      font-size:28px;
-      margin-bottom:14px;
-      background:linear-gradient(90deg,var(--electric),var(--seafoam));
-      -webkit-background-clip:text;
-      color:transparent;
-    }
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-    .card{
-      background:linear-gradient(180deg, rgba(36,164,255,.07), rgba(137,243,209,.05) 65%, rgba(0,0,0,.2)), var(--card);
-      border-radius:var(--r);
-      box-shadow:var(--shadow);
-      padding:16px;
-    }
-    label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px;}
-    input, textarea{
-      width:100%;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background:#0a0f22;
-      color:var(--text);
-      padding:12px;
-      font-size:14px;
-      outline:none;
-    }
-    input::placeholder, textarea::placeholder{color:rgba(167,184,208,.65);}
-    textarea{resize:vertical;}
-    .btn{
-      cursor:pointer;
-      padding:12px 16px;
-      border-radius:999px;
-      border:none;
-      font-weight:700;
-      font-size:14px;
-      color:#fff;
-      background:linear-gradient(180deg,#1b97ff,#0b72c4);
-      box-shadow:0 0 18px rgba(36,164,255,.35), 0 8px 30px rgba(0,0,0,.35);
-    }
-    .btn.secondary{
-      background:linear-gradient(180deg,#89f3d1,#5ad4b3);
-      color:#0b1020;
-    }
-    .btn.ghost{
-      background:transparent;
-      border:1px solid rgba(255,255,255,.14);
-      box-shadow:none;
-      color:var(--text);
-    }
-    .btn:disabled{opacity:.55;cursor:not-allowed;}
-    .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center;}
-    .hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.6;}
-    .chat{
-      height:72vh;
-      overflow:auto;
-      padding:14px;
-      border-radius:var(--r);
-      background:#080c1a;
-      border:1px solid rgba(255,255,255,.08);
-    }
-    .msg{margin:10px 0;display:flex;}
-    .bubble{
-      max-width:82%;
-      padding:12px 14px;
-      border-radius:16px;
-      line-height:1.55;
-      white-space:pre-wrap;
-      word-wrap:break-word;
-      border:1px solid rgba(255,255,255,.08);
-    }
-    .me{justify-content:flex-end;}
-    .me .bubble{background:rgba(36,164,255,.12);}
-    .bot{justify-content:flex-start;}
-    .bot .bubble{background:rgba(137,243,209,.10);}
-    .meta{font-size:11px;color:rgba(167,184,208,.8);margin-top:6px;}
-    .composer{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px;}
-    textarea{height:72px;}
-    .status{margin-top:10px;font-size:12px;color:var(--muted);}
-    code{color:#cce4ff;}
-    .tiny{font-size:12px;color:var(--muted);}
-    .checkbox{
-      display:flex;gap:8px;align-items:center;
-      font-size:12px;color:var(--muted);
-      user-select:none;
-    }
-    .checkbox input{width:auto;}
-
-    /* Export modal */
-    .modalOverlay{
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      z-index:9999;
-    }
-    .modal{
-      width:min(920px, 100%);
-      background:linear-gradient(180deg, rgba(36,164,255,.07), rgba(137,243,209,.05) 65%, rgba(0,0,0,.2)), var(--card);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:18px;
-      box-shadow:var(--shadow);
-      padding:16px;
-    }
-    .modalTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .modalTitle{
-      font-weight:800;
-      letter-spacing:.2px;
-    }
-    .exportText{
-      width:100%;
-      height:52vh;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background:#080c1a;
-      color:var(--text);
-      padding:12px;
-      font-size:13px;
-      line-height:1.5;
-      outline:none;
-      resize:vertical;
-      white-space:pre;
-    }
-    /* -----------------------------
-   MOBILE OPTIMIZATION
-   Activates on phones only
------------------------------ */
-@media (max-width: 768px){
-
-  body{
-    padding:12px;
-    overflow-x:hidden;
-  }
-
-  .wrap{
-    max-width:100%;
-  }
-
-  h1{
-    font-size:22px;
-  }
-
-  /* stack cards vertically instead of side-by-side */
-  .row{
-    grid-template-columns:1fr;
-  }
-
-  .card{
-    padding:14px;
-  }
-
-  /* chat window fills most of screen */
-  .chat{
-    height:60vh;
-  }
-
-  /* composer behaves like mobile chat apps */
-  .composer{
-    position:sticky;
-    bottom:0;
-    background:var(--card);
-    padding:10px;
-    border-top:1px solid rgba(255,255,255,.08);
-    grid-template-columns:1fr auto;
-  }
-
-  textarea{
-    height:60px;
-    font-size:16px; /* prevents iOS zoom on focus */
-  }
-
-  .btn{
-    padding:12px 14px;
-    font-size:14px;
-  }
-
-  /* keep bubbles readable */
-  .bubble{
-    max-width:90%;
-    font-size:15px;
-  }
-
-  /* modal adjustments */
-  .modal{
-    padding:14px;
-  }
-
-  .exportText{
-    height:45vh;
-  }
-
+<style>
+:root{
+--bg:#0b1020;
+--card:#11172e;
+--muted:#a7b8d0;
+--text:#eaf2ff;
+--electric:#24a4ff;
+--seafoam:#89f3d1;
+--shadow:0 12px 34px rgba(0,0,0,.38);
+--r:18px;
 }
-  </style>
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+font-family:"Segoe UI",Roboto,sans-serif;
+background:
+radial-gradient(1000px 500px at 2% 1%, rgba(137,243,209,.12), transparent 60%),
+radial-gradient(950px 480px at 98% 99%, rgba(36,164,255,.12), transparent 65%),
+linear-gradient(#0b1020,#0b1020);
+color:var(--text);
+padding:24px;
+}
+
+.wrap{max-width:1100px;margin:0 auto;}
+
+h1{
+font-size:28px;
+margin-bottom:14px;
+background:linear-gradient(90deg,var(--electric),var(--seafoam));
+-webkit-background-clip:text;
+color:transparent;
+}
+
+.card{
+background:linear-gradient(180deg, rgba(36,164,255,.07), rgba(137,243,209,.05) 65%, rgba(0,0,0,.2)), var(--card);
+border-radius:var(--r);
+box-shadow:var(--shadow);
+padding:16px;
+}
+
+.chat{
+height:72vh;
+overflow:auto;
+padding:14px;
+border-radius:var(--r);
+background:#080c1a;
+border:1px solid rgba(255,255,255,.08);
+}
+
+.msg{margin:10px 0;display:flex;}
+
+.bubble{
+max-width:82%;
+padding:12px 14px;
+border-radius:16px;
+line-height:1.55;
+white-space:pre-wrap;
+word-wrap:break-word;
+border:1px solid rgba(255,255,255,.08);
+}
+
+.me{justify-content:flex-end;}
+.me .bubble{background:rgba(36,164,255,.12);}
+
+.bot{justify-content:flex-start;}
+.bot .bubble{background:rgba(137,243,209,.10);}
+
+.composer{
+display:grid;
+grid-template-columns:1fr auto;
+gap:10px;
+margin-top:14px;
+}
+
+textarea{
+resize:vertical;
+height:72px;
+width:100%;
+border-radius:12px;
+border:1px solid rgba(255,255,255,.10);
+background:#0a0f22;
+color:var(--text);
+padding:12px;
+font-size:14px;
+}
+
+.btn{
+cursor:pointer;
+padding:12px 16px;
+border-radius:999px;
+border:none;
+font-weight:700;
+font-size:14px;
+color:#fff;
+background:linear-gradient(180deg,#1b97ff,#0b72c4);
+}
+
+.status{
+margin-top:10px;
+font-size:12px;
+color:var(--muted);
+}
+</style>
 </head>
 
 <body>
-  <div class="wrap">
-    <h1>Calmkeep Chat</h1>
 
-    <div class="row">
-      <div class="card">
-        <label>Keys (stored locally in your browser)</label>
+<div class="wrap">
+<h1>Calmkeep Chat</h1>
 
-        <input id="calmkeepKey" placeholder="Calmkeep key (ck_...)" autocomplete="off" />
-        <div style="height:10px"></div>
+<div class="card">
 
-        <input id="anthropicKey" placeholder="Claude API key (sk-ant-...)" autocomplete="off" />
+<div class="chat" id="chat"></div>
 
-        <div class="controls">
-          <button class="btn secondary" type="button" id="saveBtn">Save keys</button>
-          <button class="btn ghost" type="button" id="clearKeysBtn">Clear keys</button>
-          <label class="checkbox">
-            <input type="checkbox" id="showKeys" />
-            Show keys
-          </label>
-        </div>
+<div class="composer">
+<textarea id="prompt" placeholder="Type a message…"></textarea>
+<button class="btn" id="sendBtn">Send</button>
+</div>
 
-        <div class="hint">
-          Requests send headers: <code>calmkeep-key</code> and <code>anthropic-api-key</code>.
-        </div>
-      </div>
+<div class="status" id="status">Ready.</div>
 
-      <div class="card">
-        <label>Service</label>
-        <div class="tiny">
-          Runtime: <code id="runtimeLabel"></code>
-        </div>
-        <div class="hint" style="margin-top:10px;">
-          Lightweight BYO Claude key web chat for Calmkeep.
-        </div>
-
-        <div class="controls">
-          <button class="btn" type="button" id="newChatBtn">New chat</button>
-          <button class="btn secondary" type="button" id="exportBtn">Export</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="chat" id="chat"></div>
-
-      <div class="composer">
-        <textarea id="prompt" placeholder="Type a message… (Shift+Enter for newline)"></textarea>
-        <button class="btn" type="button" id="sendBtn">Send</button>
-      </div>
-
-      <div class="status" id="status">Ready.</div>
-      <div class="hint">
-        This page keeps local message history and stitches it into one prompt (simple continuity).
-      </div>
-    </div>
-  </div>
-
-  <!-- Export Modal (fallback for iOS / blocked downloads) -->
-  <div class="modalOverlay" id="exportOverlay">
-    <div class="modal">
-      <div class="modalTop">
-        <div class="modalTitle">Export Chat</div>
-        <div class="controls" style="margin-top:0;">
-          <button class="btn secondary" type="button" id="copyExportBtn">Copy</button>
-          <button class="btn ghost" type="button" id="closeExportBtn">Close</button>
-        </div>
-      </div>
-      <textarea class="exportText" id="exportText" readonly></textarea>
-      <div class="hint" style="margin-top:10px;">
-        If your browser blocks downloads, you can copy from here or open in a new tab.
-      </div>
-      <div class="controls">
-        <button class="btn ghost" type="button" id="openTabBtn">Open in new tab</button>
-      </div>
-    </div>
-  </div>
+</div>
+</div>
 
 <script>
-  // -----------------------------
-  // CONFIG
-  // -----------------------------
-  const MODAL_RUNTIME_URL = "https://diargallop--calmkeep-service-calmkeep-service.modal.run/runtime";
 
-  // -----------------------------
-  // Local storage keys
-  // -----------------------------
-  const LS = {
-    ck: "ck_calmkeep_key",
-    ak: "ck_anthropic_key",
-    hist: "ck_chat_history_v1"
-  };
+const MODAL_RUNTIME_URL =
+"https://diargallop--calmkeep-service-calmkeep-service.modal.run/runtime"
 
-  // -----------------------------
-  // State
-  // -----------------------------
-  let history = []; // {role:"user"|"assistant", content:string}
+let history=[]
 
-  // -----------------------------
-  // Helpers
-  // -----------------------------
-  const el = (id) => document.getElementById(id);
+const el=id=>document.getElementById(id)
 
-  function setStatus(msg){ el("status").textContent = msg; }
+function setStatus(t){
+el("status").textContent=t
+}
 
-  function addMessage(role, text, meta=""){
-    const chatEl = el("chat");
-    const row = document.createElement("div");
-    row.className = "msg " + (role === "user" ? "me" : "bot");
+function addMessage(role,text){
 
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
-    bubble.textContent = text;
+const chat=el("chat")
 
-    row.appendChild(bubble);
+const row=document.createElement("div")
+row.className="msg "+(role==="user"?"me":"bot")
 
-    if (meta) {
-      const m = document.createElement("div");
-      m.className = "meta";
-      m.textContent = meta;
+const bubble=document.createElement("div")
+bubble.className="bubble"
+bubble.textContent=text
 
-      const wrap = document.createElement("div");
-      wrap.style.maxWidth = "82%";
-      wrap.appendChild(row);
-      wrap.appendChild(m);
-      chatEl.appendChild(wrap);
-    } else {
-      chatEl.appendChild(row);
-    }
+row.appendChild(bubble)
+chat.appendChild(row)
 
-    chatEl.scrollTop = chatEl.scrollHeight;
-  }
+chat.scrollTop=chat.scrollHeight
 
-  function getKeys(){
-    return {
-      calmkeepKey: el("calmkeepKey").value.trim(),
-      anthropicKey: el("anthropicKey").value.trim()
-    };
-  }
+return bubble
+}
 
-  function validateKeys(){
-    const { calmkeepKey, anthropicKey } = getKeys();
-    if (!calmkeepKey) return "Missing Calmkeep key.";
-    if (!anthropicKey) return "Missing Claude API key.";
-    return null;
-  }
+function stitchPrompt(){
 
-  function stitchPrompt(){
-    const lines = history.map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`);
-    return lines.join("\n\n") + "\n\nAssistant:";
-  }
+const lines=history.map(
+m=>`${m.role==="user"?"User":"Assistant"}: ${m.content}`
+)
 
-  function buildExportText(){
-    if (!history.length) return "";
-    const blocks = history.map(m => {
-      const label = m.role === "user" ? "USER" : "ASSISTANT";
-      return `${label}:\n${m.content}\n`;
-    });
-    return blocks.join("\n-----------------------------\n\n");
-  }
+return lines.join("\n\n")+"\n\nAssistant:"
+}
 
-  async function callRuntime(userText){
-    const err = validateKeys();
-    if (err) throw new Error(err);
+async function callRuntime(userText){
 
-    const { calmkeepKey, anthropicKey } = getKeys();
+history.push({role:"user",content:userText})
 
-    history.push({role:"user", content:userText});
+const payload={
+prompt:stitchPrompt(),
+params:{}
+}
 
-    const payload = { prompt: stitchPrompt(), params: {} };
+const res=await fetch(MODAL_RUNTIME_URL,{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"accept":"application/json"
+},
+body:JSON.stringify(payload)
+})
 
-    const res = await fetch(MODAL_RUNTIME_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "accept": "application/json",
-        "calmkeep-key": calmkeepKey,
-        "anthropic-api-key": anthropicKey
-      },
-      body: JSON.stringify(payload)
-    });
+if(!res.ok){
+throw new Error(`HTTP ${res.status}`)
+}
 
-    const text = await res.text();
-    let data = null;
-    try { data = JSON.parse(text); } catch {}
+const reader=res.body.getReader()
+const decoder=new TextDecoder()
 
-    if (!res.ok) {
-      const msg = data?.detail ? JSON.stringify(data.detail) : (text || `HTTP ${res.status}`);
-      throw new Error(msg);
-    }
+let buffer=""
+let finalText=""
 
-    const out = data?.result?.text ?? "";
-    const latency = data?.latency_ms != null ? `${data.latency_ms}ms` : "";
-    const tokens = data?.usage?.total_tokens != null ? `tokens≈${data.usage.total_tokens}` : "";
-    const meta = [latency, tokens].filter(Boolean).join(" · ");
+const bubble=addMessage("assistant","")
 
-    history.push({role:"assistant", content: out});
-    localStorage.setItem(LS.hist, JSON.stringify(history));
+while(true){
 
-    return {out, meta};
-  }
+const {value,done}=await reader.read()
 
-  async function send(text){
-    const trimmed = (text || "").trim();
-    if (!trimmed) return;
+if(done)break
 
-    el("sendBtn").disabled = true;
+const chunk=decoder.decode(value,{stream:true})
 
-    addMessage("user", trimmed);
-    setStatus("Calling runtime…");
+buffer+=chunk
 
-    try {
-      const {out, meta} = await callRuntime(trimmed);
-      addMessage("assistant", out, meta);
-      setStatus("Ready.");
-    } catch (e) {
-      addMessage("assistant", `Error: ${e.message}`);
-      setStatus("Error.");
-    } finally {
-      el("sendBtn").disabled = false;
-      el("prompt").value = "";
-      el("prompt").focus();
-    }
-  }
+bubble.textContent=buffer
+el("chat").scrollTop=el("chat").scrollHeight
+}
 
-  // -----------------------------
-  // Export logic (download + iOS-safe fallback)
-  // -----------------------------
-  function openExportModal(text){
-    el("exportText").value = text || "";
-    el("exportOverlay").style.display = "flex";
-  }
-  function closeExportModal(){
-    el("exportOverlay").style.display = "none";
-  }
+try{
 
-  function tryDownload(text){
-    // Attempt a Blob download (may be blocked on iOS)
-    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
+const data=JSON.parse(buffer)
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "calmkeep-chat.txt";
-    a.rel = "noopener";
+finalText=data?.result?.text ?? buffer
 
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+}catch{
 
-    // cleanup
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-  }
+finalText=buffer
 
-  function openInNewTab(text){
-    // Always works on iOS: open plain text in a new tab
-    const encoded = encodeURIComponent(text);
-    const dataUrl = "data:text/plain;charset=utf-8," + encoded;
-    window.open(dataUrl, "_blank", "noopener,noreferrer");
-  }
+}
 
-  // -----------------------------
-  // Bind after DOM is ready
-  // -----------------------------
-  window.addEventListener("DOMContentLoaded", () => {
-    el("runtimeLabel").textContent = MODAL_RUNTIME_URL;
+bubble.textContent=finalText
 
-    // load saved keys/history
-    const ck = localStorage.getItem(LS.ck);
-    const ak = localStorage.getItem(LS.ak);
-    const hist = localStorage.getItem(LS.hist);
+history.push({
+role:"assistant",
+content:finalText
+})
 
-    if (ck) el("calmkeepKey").value = ck;
-    if (ak) el("anthropicKey").value = ak;
+}
 
-    el("calmkeepKey").type = "password";
-    el("anthropicKey").type = "password";
+async function send(){
 
-    if (hist) {
-      try {
-        history = JSON.parse(hist) || [];
-        const toRender = history.slice(-30);
-        for (const m of toRender) addMessage(m.role, m.content);
-        setStatus("Restored recent chat from this browser.");
-      } catch {
-        history = [];
-        setStatus("Ready. Enter keys and send a message.");
-      }
-    } else {
-      setStatus("Ready. Enter keys and send a message.");
-    }
+const txt=el("prompt").value.trim()
 
-    // handlers
-    el("saveBtn").addEventListener("click", () => {
-      localStorage.setItem(LS.ck, el("calmkeepKey").value.trim());
-      localStorage.setItem(LS.ak, el("anthropicKey").value.trim());
-      setStatus("Saved keys locally in this browser.");
-    });
+if(!txt)return
 
-    el("clearKeysBtn").addEventListener("click", () => {
-      localStorage.removeItem(LS.ck);
-      localStorage.removeItem(LS.ak);
-      el("calmkeepKey").value = "";
-      el("anthropicKey").value = "";
-      setStatus("Cleared keys.");
-    });
+addMessage("user",txt)
 
-    el("showKeys").addEventListener("change", (e) => {
-      const show = !!e.target.checked;
-      el("calmkeepKey").type = show ? "text" : "password";
-      el("anthropicKey").type = show ? "text" : "password";
-    });
+el("prompt").value=""
 
-    el("newChatBtn").addEventListener("click", () => {
-      history = [];
-      el("chat").innerHTML = "";
-      localStorage.removeItem(LS.hist);
-      setStatus("New chat started.");
-    });
+setStatus("Calling runtime…")
 
-    el("sendBtn").addEventListener("click", () => send(el("prompt").value));
+try{
 
-    el("prompt").addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        send(el("prompt").value);
-      }
-    });
+await callRuntime(txt)
 
-    el("exportBtn").addEventListener("click", () => {
-      const text = buildExportText();
-      if (!text) {
-        setStatus("Nothing to export.");
-        return;
-      }
+setStatus("Ready.")
 
-      // Always show modal so user has a guaranteed way out.
-      openExportModal(text);
+}catch(e){
 
-      // Try the download path, but don't rely on it.
-      try {
-        tryDownload(text);
-        setStatus("Export started (if download is blocked, use the export window).");
-      } catch {
-        setStatus("Download blocked — use the export window.");
-      }
-    });
+addMessage("assistant","Error: "+e.message)
 
-    el("closeExportBtn").addEventListener("click", closeExportModal);
-    el("exportOverlay").addEventListener("click", (e) => {
-      if (e.target === el("exportOverlay")) closeExportModal();
-    });
+setStatus("Error.")
 
-    el("copyExportBtn").addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(el("exportText").value);
-        setStatus("Copied export to clipboard.");
-      } catch {
-        // fallback: select text
-        el("exportText").focus();
-        el("exportText").select();
-        setStatus("Select-all ready — copy manually.");
-      }
-    });
+}
 
-    el("openTabBtn").addEventListener("click", () => {
-      const text = el("exportText").value || "";
-      if (!text) return;
-      openInNewTab(text);
-    });
-  });
+}
+
+el("sendBtn").onclick=send
+
+el("prompt").addEventListener("keydown",e=>{
+
+if(e.key==="Enter"&&!e.shiftKey){
+
+e.preventDefault()
+
+send()
+
+}
+
+})
+
 </script>
 
 </body>
