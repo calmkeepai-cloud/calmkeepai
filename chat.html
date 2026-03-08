@@ -455,10 +455,7 @@ m=>`${m.role==="user"?"User":"Assistant"}: ${m.content}`
 return docText + lines.join("\n\n") + "\n\nAssistant:";
 
 }
-
-function addMessage(role,text){
-
-  function showTyping(){
+function showTyping(){
 
 const chatEl = el("chat");
 
@@ -483,7 +480,8 @@ const t = document.getElementById("typingIndicator");
 if(t) t.remove();
 
 }
-  
+
+function addMessage(role,text){
 
 const chatEl=el("chat");
 
@@ -503,18 +501,19 @@ chatEl.scrollTop=chatEl.scrollHeight;
 
 async function send(text){
 
-if(!text.trim())return;
+if(!text.trim()) return;
 
 addMessage("user",text);
 
 history.push({role:"user",content:text});
 localStorage.setItem(LS.hist,JSON.stringify(history));
 
+showTyping();
 setStatus("Calling runtime…");
 
-  showTyping();
+try{
 
-const res=await fetch(MODAL_RUNTIME_URL,{
+const res = await fetch(MODAL_RUNTIME_URL,{
 method:"POST",
 headers:{
 "Content-Type":"application/json",
@@ -527,21 +526,30 @@ params:{}
 })
 });
 
-const data=await res.json();
+const data = await res.json();
 
-addMessage("assistant",data.result?.text||JSON.stringify(data));
+removeTyping();
+
+addMessage("assistant",data.result?.text || JSON.stringify(data));
 
 history.push({
 role:"assistant",
-content:data.result?.text||""
+content:data.result?.text || ""
 });
 
 localStorage.setItem(LS.hist,JSON.stringify(history));
 
 setStatus("Ready.");
 
-el("prompt").value="";
+}catch(err){
 
+removeTyping();
+addMessage("assistant","⚠️ Runtime error: "+err.message);
+setStatus("Runtime error.");
+
+}
+
+el("prompt").value="";
 }
 
 window.addEventListener("DOMContentLoaded",()=>{
