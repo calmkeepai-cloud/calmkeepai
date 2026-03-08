@@ -162,6 +162,32 @@ opacity:.9;
 font-size:11px;
 padding:4px 8px;
 }
+  .typing{
+display:flex;
+gap:6px;
+padding:12px 14px;
+border-radius:16px;
+background:rgba(137,243,209,.10);
+border:1px solid rgba(255,255,255,.08);
+width:fit-content;
+}
+
+.typing span{
+width:6px;
+height:6px;
+background:#89f3d1;
+border-radius:50%;
+display:inline-block;
+animation:typingBounce 1.2s infinite;
+}
+
+.typing span:nth-child(2){animation-delay:.2s;}
+.typing span:nth-child(3){animation-delay:.4s;}
+
+@keyframes typingBounce{
+0%,80%,100%{transform:scale(0)}
+40%{transform:scale(1)}
+}
 
 </style>
 </head>
@@ -432,6 +458,33 @@ return docText + lines.join("\n\n") + "\n\nAssistant:";
 
 function addMessage(role,text){
 
+  function showTyping(){
+
+const chatEl = el("chat");
+
+const row = document.createElement("div");
+row.className = "msg bot";
+row.id = "typingIndicator";
+
+const bubble = document.createElement("div");
+bubble.className = "typing";
+bubble.innerHTML = "<span></span><span></span><span></span>";
+
+row.appendChild(bubble);
+chatEl.appendChild(row);
+
+chatEl.scrollTop = chatEl.scrollHeight;
+
+}
+
+function removeTyping(){
+
+const t = document.getElementById("typingIndicator");
+if(t) t.remove();
+
+}
+  
+
 const chatEl=el("chat");
 
 const row=document.createElement("div");
@@ -458,6 +511,8 @@ history.push({role:"user",content:text});
 localStorage.setItem(LS.hist,JSON.stringify(history));
 
 setStatus("Calling runtime…");
+
+  showTyping();
 
 const res=await fetch(MODAL_RUNTIME_URL,{
 method:"POST",
