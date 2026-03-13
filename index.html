@@ -362,7 +362,7 @@ response = client.complete(
   <h3 style="margin-top:30px;color:#89f3d1;">Accessing Calmkeep</h3>
 
 <p style="margin-top:14px;">
-There are two ways to use Calmkeep depending on your workflow.
+There are three ways to use Calmkeep depending on your workflow.
 </p>
 
 <h4 style="margin-top:18px;">1. Python SDK Integration</h4>
@@ -378,8 +378,37 @@ pip install calmkeep
 <p>
 Use your Calmkeep subscription key together with your Claude API key.
 </p>
+<h4 style="margin-top:28px;">2. MCP Connector (Claude Desktop / Cursor)</h4>
+<p>
+Developers using Model Context Protocol (MCP) clients such as Claude Desktop or Cursor
+can route requests through the Calmkeep runtime using the official Calmkeep MCP connector.
+</p>
 
-<h4 style="margin-top:24px;">2. Claude Code Plugin</h4>
+<p>
+The MCP server acts as a lightweight bridge that forwards prompts to Calmkeep while preserving
+the continuity-layer orchestration that stabilizes long multi-step reasoning workflows.
+</p>
+
+<pre>
+git clone https://github.com/calmkeepai-cloud/calmkeep-mcp
+cd calmkeep-mcp
+pip install -r requirements.txt
+python mcp_server.py
+</pre>
+
+<p style="margin-top:16px;">
+After launching the MCP server, the <strong>calmkeep_chat</strong> tool becomes available
+to compatible MCP clients.
+</p>
+
+<p>
+MCP repository:
+<a href="https://github.com/calmkeepai-cloud/calmkeep-mcp"
+style="color:#89f3d1;">
+github.com/calmkeepai-cloud/calmkeep-mcp
+</a>
+</p>
+<h4 style="margin-top:24px;">3. Claude Code Plugin</h4>
 
 <p>
 Developers using Claude Code can install the Calmkeep plugin directly:
