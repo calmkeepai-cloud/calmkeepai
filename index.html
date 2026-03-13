@@ -176,6 +176,43 @@ footer{
   height:250px;
   background: radial-gradient(70% 100% at 50% 100%, rgba(137,243,209,0.25), transparent 80%);
 }
+
+/* 50th response line emphasis */
+.anchor-line {
+  font-size:20px;
+  font-weight:700;
+  color:var(--text);
+  line-height:1.6;
+  margin-top:30px;
+}
+
+/* failure mode callout */
+.failure-callout {
+  margin-top:20px;
+  padding:18px 22px;
+  border-left:3px solid var(--seafoam);
+  background:rgba(137,243,209,.05);
+  border-radius:0 12px 12px 0;
+}
+.failure-callout p {
+  font-size:15px;
+  color:var(--muted);
+  line-height:1.8;
+}
+
+/* social pressure note */
+.pressure-note {
+  margin-top:16px;
+  padding:18px 22px;
+  border-left:3px solid rgba(36,164,255,.5);
+  background:rgba(36,164,255,.04);
+  border-radius:0 12px 12px 0;
+}
+.pressure-note p {
+  font-size:15px;
+  color:var(--muted);
+  line-height:1.8;
+}
 </style>
 </head>
 
@@ -228,7 +265,7 @@ Code Test Report
     <li>Continuity Layer Access</li>
     <li>Python SDK</li>
     <li>Metrics Dashboard</li>
-    <li>Guardrails Enforcement (prevents architectural drift) (</li>
+    <li>Guardrails Enforcement (prevents architectural drift)</li>
     <li>Bring Your Own Claude API Key</li>
   </ul>
   <p style="margin-top:20px;font-size:14px;color:var(--muted);">
@@ -246,6 +283,10 @@ Code Test Report
   <p style="margin-top:16px;">Backend systems evolve across dozens of prompts. Legal arguments compound across pages. Strategic decisions build on prior constraints.</p>
   <p style="margin-top:16px;">Without structural continuity, models subtly reintroduce conflicting patterns, shift definitions, or drift from earlier architectural decisions.</p>
   <p style="margin-top:16px;">Calmkeep reduces that drift. It preserves frameworks so reasoning compounds instead of resetting.</p>
+
+  <div class="failure-callout">
+    <p>In testing, standard Claude introduced a validation pattern upgrade at turn 14 — then immediately abandoned it for the next three new modules, reverting to lower-rigor habits as if the upgrade never happened. Calmkeep held the pattern through turn 25 with zero backslide. That difference is the product.</p>
+  </div>
 </div>
 
 <div class="card">
@@ -264,6 +305,10 @@ Code Test Report
     <li>Supports multi-step system evolution without silent drift</li>
     <li>Enables compound reasoning over long conversational arcs</li>
   </ul>
+
+  <div class="pressure-note">
+    <p>Drift isn't only architectural. In extended legal and strategic sessions, models under social or commercial pressure — a client who wants to close, a counterparty framing a concession as reasonable — tend to soften established positions without flagging that they've done so. Calmkeep holds the framework under that pressure too.</p>
+  </div>
 </div>
 
 <div class="card">
@@ -274,7 +319,7 @@ Code Test Report
     <li>Multi-tenant and RBAC-heavy system design</li>
     <li>Legal and strategic reasoning that builds across documents</li>
   </ul>
-  <p style="margin-top:30px;">The 50th response reflects decisions from responses 1–49 — not just their text, but their structure.</p>
+  <p class="anchor-line">The 50th response reflects decisions from responses 1–49 — not just their text, but their structure.</p>
 </div>
 
 <div class="card">
@@ -405,8 +450,3 @@ function toggleReports(){
 
 </body>
 </html>
-
-
-
-
-
