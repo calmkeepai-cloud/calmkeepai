@@ -162,6 +162,79 @@ response = client.complete(
 </div>
 
 <div class="card">
+<h2>Using Calmkeep via MCP (Claude Desktop / Cursor)</h2>
+
+<p>
+Calmkeep can also be used through the Model Context Protocol (MCP). This allows
+MCP-compatible clients such as Claude Desktop or Cursor to access Calmkeep
+as a tool while maintaining the continuity layer across long workflows.
+</p>
+
+<p>
+The MCP server acts as a lightweight bridge between your MCP client and the
+Calmkeep runtime. When the client calls the <strong>calmkeep_chat</strong> tool,
+the request is forwarded to Calmkeep, which then routes the prompt to Claude
+while preserving structural continuity across the session.
+</p>
+
+<h3>Step 1 — Clone the MCP repository</h3>
+
+<pre>
+git clone https://github.com/calmkeepai-cloud/calmkeep-mcp
+cd calmkeep-mcp
+</pre>
+
+<h3>Step 2 — Install dependencies</h3>
+
+<pre>
+pip install -r requirements.txt
+</pre>
+
+<h3>Step 3 — Configure environment variables</h3>
+
+<p>Create a <code>.env</code> file with the following values:</p>
+
+<pre>
+CALMKEEP_URL=https://your-calmkeep-modal-url.modal.run
+CALMKEEP_API_KEY=your_calmkeep_subscription_key
+ANTHROPIC_API_KEY=your_claude_api_key
+</pre>
+
+<p>
+The MCP server will use these values to authenticate with the Calmkeep runtime
+and Claude API.
+</p>
+
+<h3>Step 4 — Launch the MCP server</h3>
+
+<pre>
+python mcp_server.py
+</pre>
+
+<p>
+Once running, the MCP server exposes the following tool:
+</p>
+
+<pre>
+calmkeep_chat(prompt)
+</pre>
+
+<p>
+This tool becomes available to MCP-compatible clients such as Claude Desktop,
+Cursor, or other MCP-enabled development environments.
+</p>
+
+<h3>MCP Repository</h3>
+
+<p>
+<a href="https://github.com/calmkeepai-cloud/calmkeep-mcp">
+https://github.com/calmkeepai-cloud/calmkeep-mcp
+</a>
+</p>
+
+</div>
+
+<div class="card">
 <h2>Claude Code Plugin</h2>
 
 <p>Developers using Claude Code can install the Calmkeep plugin directly.</p>
