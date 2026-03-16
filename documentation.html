@@ -135,11 +135,12 @@ Getting started with the Calmkeep continuity layer for Claude.
 
 <div class="card">
 <h2>Quick Start</h2>
+  
 
-<p>Install the Calmkeep SDK and route your Claude API usage through the Calmkeep runtime.</p>
+<p>Install the Calmkeep SDK and route your Claude API requests through the Calmkeep runtime continuity layer.</p>
 
 <pre>
-pip install calmkeep
+pip install git+https://github.com/calmkeepai-cloud/calmkeep_sdk
 </pre>
 
 <p>Then initialize the client:</p>
@@ -157,9 +158,17 @@ response = client.complete(
 )
 </pre>
 
-<p>Calmkeep preserves structural continuity across extended multi-turn workflows.</p>
+<p>Calmkeep preserves architectural continuity across extended multi-turn workflows.</p>
+
+  <p>
+SDK repository:<br>
+<a href="https://github.com/calmkeepai-cloud/calmkeep_sdk">
+https://github.com/calmkeepai-cloud/calmkeep_sdk
+</a>
+</p>
 
 </div>
+  
 
 <div class="card">
 <h2>Using Calmkeep via MCP (Claude Desktop / Cursor)</h2>
@@ -195,7 +204,6 @@ pip install -r requirements.txt
 <p>Create a <code>.env</code> file with the following values:</p>
 
 <pre>
-CALMKEEP_URL=https://your-calmkeep-modal-url.modal.run
 CALMKEEP_API_KEY=your_calmkeep_subscription_key
 ANTHROPIC_API_KEY=your_claude_api_key
 </pre>
@@ -274,7 +282,7 @@ https://github.com/calmkeepai-cloud/calmkeep-claude-plugin
 <p>Cursor users can integrate Calmkeep by routing Claude calls through the SDK.</p>
 
 <pre>
-pip install calmkeep
+pip install git+https://github.com/calmkeepai-cloud/calmkeep_sdk
 </pre>
 
 <p>Example integration:</p>
