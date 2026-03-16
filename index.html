@@ -350,7 +350,7 @@ Manage Subscription
   <ul>
     <li>Calmkeep SaaS runtime endpoint</li>
     <li>Python SDK</li>
-    <li>Continuity-layer orchestration</li>
+    <li>Runtime Continuity Layer</li>
     <li>Input/output guardrails enforcement</li>
     <li>Runtime performance instrumentation</li>
     <li>Structured response telemetry</li>
@@ -378,16 +378,27 @@ There are three ways to use Calmkeep depending on your workflow.
 <h4 style="margin-top:18px;">1. Python SDK Integration</h4>
 
 <p>
-Install the Calmkeep SDK and route your Claude calls through the Calmkeep runtime.
+Install the Calmkeep SDK and route your Claude API requests through the Calmkeep runtime continuity layer.
 </p>
 
 <pre>
-pip install calmkeep
+pip install git+https://github.com/calmkeepai-cloud/calmkeep_sdk
+</pre>
+
 </pre>
 
 <p>
-Use your Calmkeep subscription key together with your Claude API key.
+Initialize the client using your Calmkeep subscription key and Claude API key.
 </p>
+
+<pre>
+from calmkeep import CalmkeepClient
+
+client = CalmkeepClient(
+    calmkeep_key="YOUR_CALMKEEP_SUBSCRIPTION_KEY",
+    claude_key="YOUR_CLAUDE_API_KEY"
+)
+</pre>
 <h4 style="margin-top:28px;">2. MCP Connector (Claude Desktop / Cursor)</h4>
 <p>
 Developers using Model Context Protocol (MCP) clients such as Claude Desktop or Cursor
@@ -396,7 +407,10 @@ can route requests through the Calmkeep runtime using the official Calmkeep MCP 
 
 <p>
 The MCP server acts as a lightweight bridge that forwards prompts to Calmkeep while preserving
-the continuity-layer orchestration that stabilizes long multi-step reasoning workflows.
+the runtime continuity layer that stabilizes long multi-step reasoning workflows. In this format the Claude App is calling Calmkeep,
+  meaning the session dynamics get heightened constraint and framework preservation, though different than the full calmkeep experience
+  which can be used at calmkeep.ai/chat
+  
 </p>
 
 <pre>
