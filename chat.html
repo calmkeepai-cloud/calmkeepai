@@ -221,7 +221,7 @@ animation:typingBounce 1.2s infinite;
 </div>
 
 <div class="hint">
-Requests send headers: <code>calmkeep_key</code> and <code>anthropic_api_key</code>.
+Requests send headers: <code>calmkeep-key</code> and <code>anthropic-api-key</code>.
 </div>
 
 </div>
@@ -517,8 +517,8 @@ const res = await fetch(MODAL_RUNTIME_URL,{
 method:"POST",
 headers:{
 "Content-Type":"application/json",
-"calmkeep_key":el("calmkeepKey").value,
-"anthropic_api_key":el("anthropicKey").value
+"calmkeep-key":el("calmkeepKey").value.trim(),
+"anthropic-api-key":el("anthropicKey").value.trim()
 },
 body:JSON.stringify({
 prompt:stitchPrompt(),
