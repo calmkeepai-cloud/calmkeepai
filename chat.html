@@ -530,8 +530,33 @@ const data = await res.json();
 
 removeTyping();
 
-addMessage("assistant",data.result?.text || JSON.stringify(data));
+const reply = data.result?.text || JSON.stringify(data);
 
+const chatEl = el("chat");
+
+const row=document.createElement("div");
+row.className="msg bot";
+
+const bubble=document.createElement("div");
+bubble.className="bubble";
+
+row.appendChild(bubble);
+chatEl.appendChild(row);
+
+chatEl.scrollTop=chatEl.scrollHeight;
+
+let i = 0;
+
+function stream(){
+  if(i < reply.length){
+    bubble.textContent += reply[i];
+    i++;
+    chatEl.scrollTop=chatEl.scrollHeight;
+    requestAnimationFrame(stream);
+  }
+}
+
+stream();
 history.push({
 role:"assistant",
 content:data.result?.text || ""
@@ -581,6 +606,7 @@ el("saveBtn").onclick = () => {
   localStorage.setItem(LS.ck, el("calmkeepKey").value.trim());
   localStorage.setItem(LS.ak, el("anthropicKey").value.trim());
   setStatus("Saved keys locally.");
+  alert("Calmkeep and Claude API keys saved locally in your browser.");
 };
 
 el("clearKeysBtn").onclick = () => {
