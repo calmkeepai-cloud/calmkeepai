@@ -137,7 +137,7 @@ Getting started with the Calmkeep continuity layer for Claude.
 <h2>Quick Start</h2>
   
 
-<p>Install the Calmkeep SDK and route your Claude API requests through the Calmkeep runtime continuity layer.</p>
+<p>Install the Calmkeep SDK and route your ANTHROPIC API requests through the Calmkeep runtime continuity layer.</p>
 
 <pre>
 pip install git+https://github.com/calmkeepai-cloud/calmkeep_sdk
@@ -150,7 +150,7 @@ from calmkeep import CalmkeepClient
 
 client = CalmkeepClient(
     calmkeep_key="YOUR_CALMKEEP_SUBSCRIPTION_KEY",
-    claude_key="YOUR_ANTHROPIC_API_KEY"
+    anthropic_key="YOUR_ANTHROPIC_API_KEY"
 )
 
 response = client.complete(
@@ -210,7 +210,7 @@ ANTHROPIC_API_KEY=your_ANTHROPIC_api_key
 
 <p>
 The MCP server will use these values to authenticate with the Calmkeep runtime
-and Claude API.
+and ANTHROPIC API.
 </p>
 
 <h3>Step 4 — Launch the MCP server</h3>
@@ -293,7 +293,7 @@ import os
 
 client = CalmkeepClient(
     calmkeep_key=os.getenv("CALMKEEP_API_KEY"),
-    claude_key=os.getenv("ANTHROPIC_API_KEY")
+    anthropic_key=os.getenv("ANTHROPIC_API_KEY")
 )
 </pre>
 
@@ -310,13 +310,13 @@ Calmkeep ensures architectural decisions remain consistent across long Cursor se
 
 <pre>
 export CALMKEEP_API_KEY=your_key
-export ANTHROPIC_API_KEY=your_claude_key
+export ANTHROPIC_API_KEY=your_anthropic_key
 </pre>
 
 <p>Then call the Calmkeep client within your workflow scripts.</p>
 
 <p>
-Calmkeep acts as a runtime orchestration layer around Claude API usage.
+Calmkeep acts as a runtime orchestration layer around ANTHROPIC API usage.
 </p>
 
 </div>
@@ -324,10 +324,10 @@ Calmkeep acts as a runtime orchestration layer around Claude API usage.
 <div class="card">
 <h2>Architecture Overview</h2>
 
-<p>Your Application → Calmkeep Runtime → Claude API → Structured Response</p>
+<p>Your Application → Calmkeep Runtime → ANTHROPIC API → Structured Response</p>
 
 <ul>
-<li>Bring your own Claude API key</li>
+<li>Bring your own ANTHROPIC API key</li>
 <li>Claude billing remains directly with Anthropic</li>
 <li>No token resale or proxy billing</li>
 <li>No modification of model weights</li>
@@ -345,10 +345,10 @@ Calmkeep acts as a runtime orchestration layer around Claude API usage.
 export CALMKEEP_API_KEY=your_key
 </pre>
 
-<h3>Claude API key not configured</h3>
+<h3>ANTHROPIC API key not configured</h3>
 
 <pre>
-export ANTHROPIC_API_KEY=your_claude_key
+export ANTHROPIC_API_KEY=your_anthropic_key
 </pre>
 
 <p>Ensure both keys are available to your environment before running Calmkeep.</p>
