@@ -271,7 +271,7 @@ Code Test Report
     <li>Python SDK</li>
     <li>Metrics Dashboard</li>
     <li>Guardrails Enforcement (prevents architectural drift)</li>
-    <li>Bring Your Own Claude API Key</li>
+    <li>Bring Your Own ANTHROPIC API Key</li>
   </ul>
   <p style="margin-top:20px;font-size:14px;color:var(--muted);">
     Claude usage billed separately by Anthropic.
@@ -334,10 +334,10 @@ Manage Subscription
 
 <div class="card">
   <h2>Architecture</h2>
-  <p>Your Application → Calmkeep Runtime → Claude API (BYO Key) → Structured Response</p>
+  <p>Your Application → Calmkeep Runtime → ANTHROPIC API (BYO Key) → Structured Response</p>
   <p style="margin-top:16px;">Calmkeep does not modify model weights, alter training data, or introduce hidden memory. It operates as an external orchestration layer around your existing Claude usage.</p>
   <ul>
-    <li>Bring your own Claude API key</li>
+    <li>Bring your own ANTHROPIC API key</li>
     <li>Claude billing remains directly with Anthropic</li>
     <li>No token resale or proxy billing</li>
     <li>No safeguard bypassing</li>
@@ -355,14 +355,14 @@ Manage Subscription
     <li>Runtime performance instrumentation</li>
     <li>Structured response telemetry</li>
   </ul>
-  <p style="margin-top:20px;">Claude API usage is billed separately through your own Anthropic account.</p>
+  <p style="margin-top:20px;">ANTHROPIC API usage is billed separately through your own Anthropic account.</p>
 
 <pre>
 from calmkeep import CalmkeepClient
 
 client = CalmkeepClient(
     calmkeep_key="YOUR_CALMKEEP_SUBSCRIPTION_KEY",
-    claude_key="YOUR_ANTHROPIC_API_KEY"
+    anthropic_key="YOUR_ANTHROPIC_API_KEY"
 )
 
 response = client.complete(
@@ -378,7 +378,7 @@ There are three ways to use Calmkeep depending on your workflow.
 <h4 style="margin-top:18px;">1. Python SDK Integration</h4>
 
 <p>
-Install the Calmkeep SDK and route your Claude API requests through the Calmkeep runtime continuity layer.
+Install the Calmkeep SDK and route your ANTHROPIC API requests through the Calmkeep runtime continuity layer.
 </p>
 
 <pre>
@@ -386,7 +386,7 @@ pip install git+https://github.com/calmkeepai-cloud/calmkeep_sdk
 </pre>
 
 <p>
-Initialize the client using your Calmkeep subscription key and Claude API key.
+Initialize the client using your Calmkeep subscription key and ANTHROPIC API key.
 </p>
 
 <pre>
@@ -394,7 +394,7 @@ from calmkeep import CalmkeepClient
 
 client = CalmkeepClient(
     calmkeep_key="YOUR_CALMKEEP_SUBSCRIPTION_KEY",
-    claude_key="YOUR_ANTHROPIC_API_KEY"
+    anthropic_key="YOUR_ANTHROPIC_API_KEY"
 )
 </pre>
 <h4 style="margin-top:28px;">2. MCP Connector (Claude Desktop / Cursor)</h4>
