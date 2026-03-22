@@ -176,7 +176,30 @@ footer{
   height:250px;
   background: radial-gradient(70% 100% at 50% 100%, rgba(137,243,209,0.25), transparent 80%);
 }
+/* VIDEO SECTION */
 
+.video-section{
+  text-align:center;
+}
+
+.video-wrapper{
+  position:relative;
+  padding-bottom:56.25%;
+  height:0;
+  overflow:hidden;
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  margin-top:20px;
+}
+
+.video-wrapper iframe{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+}
+  
 /* 50th response line emphasis */
 .anchor-line {
   font-size:20px;
@@ -283,6 +306,28 @@ onclick="window.location.href='https://billing.stripe.com/p/login/bJe14o6F55LI6p
 Manage Subscription
 </button>
 </div>
+</section>
+
+<section class="video-section">
+
+<div class="card">
+  <h2>About Calmkeep</h2>
+  <p>
+    A short introduction to Calmkeep and the continuity problem it is designed to solve.
+  </p>
+
+  <div class="video-wrapper">
+    <iframe
+      src="https://www.youtube.com/embed/3YWdFdf5kXI"
+      title="About Calmkeep"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
+
+</div>
+
 </section>
 
 <section>
